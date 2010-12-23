@@ -2,15 +2,71 @@
 <head>
 <script>
  
-function Node(px, py, pheight, pwidth, pfcolor, pbcolor, pcontent, pparent) {
+function Node() {
 	return {
-		position: { x: px, y: py, height: pheight, width: pwidth },
-		fill_color: pfcolor,
-		border_color: pbcolor,
-		content: pcontent,
-		parent: pparent
+		position: { x: 0, y: 0, height: 0, width: 0 },
+		fill_color: 'white',
+		border_color: 'black',
+		content: '',
+		parent: null,
+		child: [],
+		
+		AdjustSize : function() { 
+			this.height = 20; 
+			this.width = content.length*5; 
+		},
+		
+		setX : function(px) { 
+			this.position.x = px; 
+			return this;
+		},
+				
+		setY : function(py) { 
+			this.position.y = py; 
+			return this;
+		},
+		
+		getXMax : function() { 
+			return this.position.x + this.position.width;
+		},
+		
+		getYMax : function() { 
+			return this.position.y + this.position.height;
+		},
+				
+		setFillColor : function(color) { 
+			this.fill_color = color; 
+			return this;
+		},
+		
+		setBorderColor : function(color) { 
+			this.border_color = color; 
+			return this;
+		},
+		
+		setContent : function(c) { 
+			this.content = c; 
+			this.AdjustSize();
+			return this;
+		},
+		
+		setParent : function(pparent) { 
+			if(pparent != null) {
+				this.parent = pparent; 
+				this.setX(this.parent.getXMax() + 50);
+				this.setY(this.parent.getXMax() + 50);
+				pparent.addChild(this); 
+			}
+			return this;
+		},
+		
+		addChild : function(pchild) { 
+			this.child.push(pchild); 
+			return this;
+		}
 	};
  }
+  
   
 function drawElement(node) {
 	var canvas=document.getElementById("myCanvas");
@@ -52,8 +108,11 @@ function drawElement(node) {
 }
 
 function setUp() {
-	var newNode = new Node(250,200, 100, 200, 'white', 'black','Teste',null);
-	drawElement(newNode);
+	var pai = new Node();
+	pai.setX(250).setY(200).setContent('teste');
+	//var filho1 = new Node('Filho 1',pai);
+	drawElement(pai);
+	//drawElement(filho);
 }
  
 </script>
