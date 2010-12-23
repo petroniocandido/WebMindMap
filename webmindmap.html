@@ -1,0 +1,62 @@
+<html>
+<head>
+<script>
+ 
+function Node(px, py, pheight, pwidth, pfcolor, pbcolor, pcontent, pparent) {
+	return {
+		position: { x: px, y: py, height: pheight, width: pwidth },
+		fill_color: pfcolor,
+		border_color: pbcolor,
+		content: pcontent,
+		parent: pparent
+	};
+ }
+  
+function drawElement(node) {
+	var canvas=document.getElementById("myCanvas");
+	var c=canvas.getContext("2d");
+ 
+	// define center of oval
+	var centerX = parseInt(node.position.x);
+	var centerY = parseInt(node.position.y);
+ 
+	// define size of oval
+	var height =  parseInt(node.position.height);
+	var width = parseInt(node.position.width);
+ 
+	var controlRectWidth = width * 1.33;
+ 
+	c.beginPath();
+	c.moveTo(centerX,centerY - height/2);
+	// draw left side of oval
+	c.bezierCurveTo(centerX-controlRectWidth/2,centerY-height/2,
+		centerX-controlRectWidth/2,centerY+height/2,
+		centerX,centerY+height/2);
+ 
+	// draw right side of oval
+	c.bezierCurveTo(centerX+controlRectWidth/2,centerY+height/2,
+		centerX+controlRectWidth/2,centerY-height/2,
+		centerX,centerY-height/2);
+ 
+	c.fillStyle=node.fill_color;
+	c.fill();
+	c.lineWidth=5;
+	c.strokeStyle=node.border_color; 
+	c.stroke();	
+	c.closePath();
+	
+	c.fillStyle='black';
+	c.fillText(node.content, centerX, centerY);
+}
+
+function setUp() {
+	var newNode = new Node(250,200, 100, 200, 'white', 'black','Tesasdasdfasedfasdfasdfasdfte',null);
+	drawElement(newNode);
+}
+ 
+</script>
+</head>
+<body onload="setUp()">
+	<canvas id="myCanvas" width="578" height="500"></canvas>
+</body>
+</html>
