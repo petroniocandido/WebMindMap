@@ -46,11 +46,13 @@ function drawElement(node) {
 	c.closePath();
 	
 	c.fillStyle='black';
-	c.fillText(node.content, centerX, centerY);
+	var str = node.content;
+	var tx = centerX - (str.length * 5 / 2);
+	c.fillText(str, tx, centerY);
 }
 
 function setUp() {
-	var newNode = new Node(250,200, 100, 200, 'white', 'black','Tesasdasdfasedfasdfasdfasdfte',null);
+	var newNode = new Node(250,200, 100, 200, 'white', 'black','Teste',null);
 	drawElement(newNode);
 }
  
