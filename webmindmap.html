@@ -1,171 +1,34 @@
 <html>
 <head>
-<script>
-/* 
- Display = ( function(pheigth, pwidth) {
-	screen_height : pheigth,
-	screen_width: pwidth,
-	middleX
- }
- );
- */
- 
-function Node() {
-	return {
-		position: { x: 0, y: 0, height: 0, width: 0 },
-		fill_color: 'white',
-		border_color: 'black',
-		content: '',
-		parent: null,
-		child: [],
-		
-		AdjustSize : function() { 
-			this.position.height = 30; 
-			this.position.width = this.content.length*5 + 10; 
-		},
-		
-		setX : function(px) { 
-			this.position.x = px; 
-			return this;
-		},
-				
-		setY : function(py) { 
-			this.position.y = py; 
-			return this;
-		},
-		
-		getXMax : function() { 
-			return this.position.x + this.position.width;
-		},
-		
-		getYMax : function() { 
-			return this.position.y + this.position.height;
-		},
-				
-		setFillColor : function(color) { 
-			this.fill_color = color; 
-			return this;
-		},
-		
-		setBorderColor : function(color) { 
-			this.border_color = color; 
-			return this;
-		},
-		
-		setContent : function(c) { 
-			this.content = c; 
-			this.AdjustSize();
-			return this;
-		},
-		
-		setParent : function(pparent) { 
-			if(pparent != null) {
-				this.parent = pparent; 
-				pparent.addChild(this); 
-			}
-			return this;
-		},
-		
-		addChild : function(pchild) { 
-			this.child.push(pchild); 
-			this.RecalculateChild();
-			return this;
-		},
-		
-		getChildLength : function() {
-			return this.child.length;
-		},
-		
-		getTotalHeight : function() {
-			var tmp = 0;
-			if(this.child.length > 0) {
-				for(i in this.child)
-					tmp += parseInt(this.child[i].getTotalHeight());
-			}
-			else
-				tmp = this.position.height;
-				
-			return tmp;
-		},
-		
-		RecalculateChild : function() {
-			var ypos = parseInt(this.position.y) - (this.getTotalHeight() + this.getChildLength() * 10) /2;
-			for(i in this.child){
-				this.child[i].setX(this.getXMax() + 50);
-				this.child[i].setY(ypos);
-				ypos += parseInt(this.child[i].getTotalHeight()) + 10;
-			}
-		}
-	};
- }
-  
-  
-function drawElement(node) {
-	var canvas=document.getElementById("myCanvas");
-	var c=canvas.getContext("2d");
- 
-	// define center of oval
-	var centerX = parseInt(node.position.x);
-	var centerY = parseInt(node.position.y);
- 
-	// define size of oval
-	var height =  parseInt(node.position.height);
-	var width = parseInt(node.position.width);
- 
-	var controlRectWidth = width * 1.33;
- 
-	c.beginPath();
-	c.moveTo(centerX,centerY - height/2);
-	// draw left side of oval
-	c.bezierCurveTo(centerX-controlRectWidth/2,centerY-height/2,
-		centerX-controlRectWidth/2,centerY+height/2,
-		centerX,centerY+height/2);
- 
-	// draw right side of oval
-	c.bezierCurveTo(centerX+controlRectWidth/2,centerY+height/2,
-		centerX+controlRectWidth/2,centerY-height/2,
-		centerX,centerY-height/2);
- 
-	c.fillStyle=node.fill_color;
-	c.fill();
-	c.lineWidth=5;
-	c.strokeStyle=node.border_color; 
-	c.stroke();	
-	c.closePath();
-	
-	c.fillStyle='black';
-	var str = node.content;
-	var tx = centerX - (str.length * 5 / 2);
-	c.fillText(str, tx, centerY);
-}
-
-function setUp() {
-	var pai = new Node();
-	pai.setX(250).setY(200).setContent('Pai');
-	var filho1 = new Node();
-	filho1.setContent('filho1').setParent(pai);
-	var filho2 = new Node();
-	filho2.setContent('filho2').setParent(pai);
-	var filho3 = new Node();
-	filho3.setContent('filho3').setParent(pai);
-	var neto1 = new Node();
-	neto1.setContent('neto1').setParent(filho1);
-	var neto2 = new Node();
-	neto2.setContent('neto2').setParent(filho1);
-	var neto3 = new Node();
-	neto3.setContent('neto3').setParent(filho2);
-	drawElement(pai);
-	drawElement(filho1);
-	drawElement(filho2);
-	drawElement(filho3);
-	drawElement(neto1);
-	drawElement(neto2);
-	drawElement(neto3);
-}
- 
-</script>
 </head>
-<body onload="setUp()">
+<body>
 	<canvas id="myCanvas" width="578" height="500"></canvas>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script src="webmindmap.js"></script>
+    <script type="text/javascript" >
+		$(document).ready(function() {
+				var pai = new Node();
+				pai.setX(250).setY(200).setContent('Pai');
+				var filho1 = new Node();
+				filho1.setContent('filho1').setParent(pai);
+				var filho2 = new Node();
+				filho2.setContent('filho2').setParent(pai);
+				var filho3 = new Node();
+				filho3.setContent('filho3').setParent(pai);
+				var neto1 = new Node();
+				neto1.setContent('neto1').setParent(filho1);
+				var neto2 = new Node();
+				neto2.setContent('neto2').setParent(filho1);
+				var neto3 = new Node();
+				neto3.setContent('neto3').setParent(filho2);
+				drawElement(pai);
+				drawElement(filho1);
+				drawElement(filho2);
+				drawElement(filho3);
+				drawElement(neto1);
+				drawElement(neto2);
+				drawElement(neto3);
+			});
+	</script>
 </body>
 </html>
