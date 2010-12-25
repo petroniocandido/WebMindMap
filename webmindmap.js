@@ -7,16 +7,16 @@
  );
  */
 
- function MindMap() {
+ function xMindMap() {
 	return {
 		root: null,
-		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 }
+		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 },
 		setRootNode : function(node) {
 			this.root = node;
 		},
-		addNode: function(nodeA,nodeB) {
+		addNode : function(nodeA,nodeB) {
 			nodeB.setParent(nodeA);
-		}
+		},
 		getNodeInXY : function(x,y) {
 		}
 	};
