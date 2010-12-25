@@ -2,38 +2,68 @@
 <head>
 </head>
 <body>
+	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="800"></canvas>
 	<script src="jquery-1.4.3.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
+		var mm = new xMindMap();
+		function evtMouse(e) {
+			var x = e.pageX - this.offsetLeft;
+			var y = e.pageY - this.offsetTop;
+			$('#xy').html("X: " + x + " Y: " + y); 
+			var n = mm.getNodeInXY(x,y);
+			if(n != null){
+				mm.setSelectedNode(n);
+			}
+		}
+		function evtKey(e) {
+			// space
+			if (e.keyCode == '32') {
+				mm.selected.toggleChildVisible();
+				mm.Show();
+			}
+			// insert
+			if (e.keyCode == '45') {}
+			// delete
+			if (e.keyCode == '46') {}
+		}
 		$(document).ready(function() {
+				
+				
 				var pai = new Node();
 				pai.setX(250).setY(200).setContent('Pai - Nó raiz').setFillColor('blue');
+				mm.setRootNode(pai);
 				var filho1 = new Node();
-				filho1.setContent('filho1').setParent(pai).setFillColor('cyan');
+				filho1.setContent('filho1').setFillColor('cyan');
+				mm.addNode(pai, filho1);
 				var filho2 = new Node();
-				filho2.setContent('filho2').setParent(pai).setFillColor('cyan');
+				filho2.setContent('filho2').setFillColor('cyan');
+				mm.addNode(pai, filho2);
 				var filho3 = new Node();
-				filho3.setContent('filho3').setParent(pai).setFillColor('cyan');
+				filho3.setContent('filho3').setFillColor('cyan');
+				mm.addNode(pai, filho3);
 				var neto1 = new Node();
-				neto1.setContent('neto1').setParent(filho1).setFillColor('darkgray');
+				neto1.setContent('neto1').setFillColor('darkgray');
+				mm.addNode(filho1,neto1);
 				var neto2 = new Node();
-				neto2.setContent('neto2').setParent(filho1).setFillColor('darkgray');;
+				neto2.setContent('neto2').setFillColor('darkgray');;
+				mm.addNode(filho1,neto2);
 				var neto3 = new Node();
-				neto3.setContent('neto3').setParent(filho2).setFillColor('darkgray');;
+				neto3.setContent('neto3').setFillColor('darkgray');;
+				mm.addNode(filho2,neto3);
 				var neto4 = new Node();
-				neto4.setContent('neto4').setParent(filho2).setFillColor('darkgray');;
+				neto4.setContent('neto4').setFillColor('darkgray');;
+				mm.addNode(filho2,neto4);
 				var bisneto1 = new Node();
 				bisneto1.setContent('bisneto1').setParent(neto1).setFillColor('gray');;
 				var bisneto2 = new Node();
 				bisneto2.setContent('bisneto2').setParent(neto1).setFillColor('gray');
-				drawTree(pai);
-				/*
-				$('#example2').mousemove(function(e){
-				var x = e.pageX - this.offsetLeft;
-				var y = e.pageY - this.offsetTop;
-				$('#example2-xy').html("X: " + x + " Y: " + y); 
-				*/
+				drawTree(mm.root);
+				
+				//$('#myCanvas').mousemove(evt);
+				$('#myCanvas').click(evtMouse);
+				$(document).keydown(evtKey);
   
 			});
 	</script>

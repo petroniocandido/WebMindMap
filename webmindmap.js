@@ -10,14 +10,42 @@
  function xMindMap() {
 	return {
 		root: null,
+		selected: null,
+		selected_lastcolor : 'white',
 		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 },
 		setRootNode : function(node) {
 			this.root = node;
 		},
-		addNode : function(nodeA,nodeB) {
-			nodeB.setParent(nodeA);
+		setSelectedNode : function(node) {
+			if(this.selected != null) {
+				this.selected.fill_color = this.selected_lastcolor;
+			}
+			this.selected_lastcolor = node.fill_color;
+			this.selected = node;
+			this.selected.setFillColor('white');
+			this.Show();
+		},
+		addNode : function(parent,child) {
+			child.setParent(parent);
 		},
 		getNodeInXY : function(x,y) {
+			return this.checkNodeInBounds(this.root,x,y) ;
+		},		
+		checkNodeInBounds : function(node, x,y) {
+			if(x >= node.getX() && x <= node.getXMax()
+				&& y >= node.getY() && y <= node.getYMax())
+				return node;
+			else {
+				for(i in node.child){
+					var tmp = this.checkNodeInBounds(node.child[i],x,y);
+					if(tmp != null) return tmp;
+				}
+			}
+			return null;
+		},		
+		Show : function() {
+			clearCanvas();
+			drawTree(this.root);
 		}
 	};
 	
@@ -28,6 +56,7 @@ function Node() {
 		position: { x: 0, y: 0, height: 0, width: 0 },
 		fill_color: 'white',
 		border_color: 'black',
+		visible: true,
 		content: '',
 		parent: null,
 		child: [],
@@ -35,6 +64,23 @@ function Node() {
 		AdjustSize : function() { 
 			this.position.height = 30; 
 			this.position.width = this.content.length*5 + 10; 
+		},
+		
+		setVisible : function(t) { 
+			this.visible = t; 
+			return this;
+		},
+		
+		toggleVisible : function() { 
+			this.visible = !(this.visible) ; 
+			return this;
+		},
+		
+		toggleChildVisible : function() { 
+			for(i in this.child)
+				this.child[i].toggleVisible();
+				
+			return this;
 		},
 		
 		setX : function(px) { 
@@ -45,6 +91,14 @@ function Node() {
 		setY : function(py) { 
 			this.position.y = py; 
 			return this;
+		},
+		
+		getX : function() { 
+			return this.position.x;
+		},
+		
+		getY : function() { 
+			return this.position.y;
 		},
 		
 		getXMax : function() { 
@@ -93,7 +147,8 @@ function Node() {
 			var tmp = 0;
 			if(this.child.length > 0) {
 				for(i in this.child)
-					tmp += parseInt(this.child[i].getTotalHeight());
+					if(this.child[i].visible)
+						tmp += parseInt(this.child[i].getTotalHeight());
 			}
 			else
 				tmp = this.position.height;
@@ -105,7 +160,8 @@ function Node() {
 			var tmp = 0;
 			if(this.child.length > 0) {
 				for(i in this.child)
-					tmp += parseInt(this.child[i].getTotalWidth());
+					if(this.child[i].visible)
+						tmp += parseInt(this.child[i].getTotalWidth());
 			}
 			else
 				tmp = this.position.width;
@@ -118,11 +174,13 @@ function Node() {
 				this.parent.RecalculateChild();
 				
 			var ypos = parseInt(this.position.y) - (this.getTotalHeight() / 2);
-			for(i in this.child){
-				this.child[i].setX(this.getXMax() + 50);
-				this.child[i].setY(ypos + this.child[i].getTotalHeight() / 2);				
-				ypos += parseInt(this.child[i].getTotalHeight() + this.child[i].getChildLength()*10 + 10) ;
-			}
+			for(i in this.child)
+				if(this.child[i].visible)
+				{
+					this.child[i].setX(this.getXMax() + 50);
+					this.child[i].setY(ypos + this.child[i].getTotalHeight() / 2);				
+					ypos += parseInt(this.child[i].getTotalHeight() + this.child[i].getChildLength()*10 + 10) ;
+				}
 		}
 	};
  }
@@ -202,10 +260,12 @@ function drawTree(node) {
 	if(node.parent == null) drawElement(node);
 	else drawRect(node);
 	if(node.getChildLength() > 0)
-		for(i in node.child) {
-			drawEdge(node, node.child[i]);
-			drawTree(node.child[i]);			
-		}
+		for(i in node.child) 
+			if(node.child[i].visible)
+			{
+				drawEdge(node, node.child[i]);
+				drawTree(node.child[i]);			
+			}
 }
 
 function drawEdge(nodeA, nodeB) {
@@ -222,6 +282,11 @@ function drawEdge(nodeA, nodeB) {
 	context.stroke();
 }
 
-function mouseOver(x,y,root){
-	
+function clearCanvas() {
+	var canvas=document.getElementById("myCanvas");
+	var context=canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  var w = canvas.width;
+  canvas.width = 1;
+  canvas.width = w;
 }
