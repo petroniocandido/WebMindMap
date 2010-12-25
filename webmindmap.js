@@ -6,6 +6,22 @@
  }
  );
  */
+
+ function MindMap() {
+	return {
+		root: null,
+		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 }
+		setRootNode : function(node) {
+			this.root = node;
+		},
+		addNode: function(nodeA,nodeB) {
+			nodeB.setParent(nodeA);
+		}
+		getNodeInXY : function(x,y) {
+		}
+	};
+	
+ }
  
 function Node() {
 	return {
@@ -65,7 +81,7 @@ function Node() {
 		
 		addChild : function(pchild) { 
 			this.child.push(pchild); 
-			this.RecalculateChild();
+			this.RecalculateChild();			
 			return this;
 		},
 		
@@ -85,11 +101,26 @@ function Node() {
 			return tmp;
 		},
 		
+		getTotalWidth : function() {
+			var tmp = 0;
+			if(this.child.length > 0) {
+				for(i in this.child)
+					tmp += parseInt(this.child[i].getTotalWidth());
+			}
+			else
+				tmp = this.position.width;
+				
+			return tmp;
+		},
+		
 		RecalculateChild : function() {
+			if(this.parent != null)
+				this.parent.RecalculateChild();
+				
 			var ypos = parseInt(this.position.y) - (this.getTotalHeight() / 2);
 			for(i in this.child){
 				this.child[i].setX(this.getXMax() + 50);
-				this.child[i].setY(ypos + this.child[i].getTotalHeight()/2);
+				this.child[i].setY(ypos + this.child[i].getTotalHeight() / 2);				
 				ypos += parseInt(this.child[i].getTotalHeight() + this.child[i].getChildLength()*10 + 10) ;
 			}
 		}
@@ -189,4 +220,8 @@ function drawEdge(nodeA, nodeB) {
 	context.moveTo(ax,ay);
 	context.bezierCurveTo(ax-10,ay-10,bx-10,by-10,bx,by);
 	context.stroke();
+}
+
+function mouseOver(x,y,root){
+	
 }
