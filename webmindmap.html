@@ -2,32 +2,32 @@
 <head>
 </head>
 <body>
-	<canvas id="myCanvas" width="578" height="500"></canvas>
+	<canvas id="myCanvas" width="878" height="800"></canvas>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
 		$(document).ready(function() {
 				var pai = new Node();
-				pai.setX(250).setY(200).setContent('Pai');
+				pai.setX(250).setY(200).setContent('Pai - Nó raiz').setFillColor('blue');
 				var filho1 = new Node();
-				filho1.setContent('filho1').setParent(pai);
+				filho1.setContent('filho1').setParent(pai).setFillColor('cyan');
 				var filho2 = new Node();
-				filho2.setContent('filho2').setParent(pai);
+				filho2.setContent('filho2').setParent(pai).setFillColor('cyan');
 				var filho3 = new Node();
-				filho3.setContent('filho3').setParent(pai);
+				filho3.setContent('filho3').setParent(pai).setFillColor('cyan');
 				var neto1 = new Node();
-				neto1.setContent('neto1').setParent(filho1);
+				neto1.setContent('neto1').setParent(filho1).setFillColor('darkgray');
 				var neto2 = new Node();
-				neto2.setContent('neto2').setParent(filho1);
+				neto2.setContent('neto2').setParent(filho1).setFillColor('darkgray');;
 				var neto3 = new Node();
-				neto3.setContent('neto3').setParent(filho2);
-				drawElement(pai);
-				drawElement(filho1);
-				drawElement(filho2);
-				drawElement(filho3);
-				drawElement(neto1);
-				drawElement(neto2);
-				drawElement(neto3);
+				neto3.setContent('neto3').setParent(filho2).setFillColor('darkgray');;
+				var neto4 = new Node();
+				neto4.setContent('neto4').setParent(filho2).setFillColor('darkgray');;
+				var bisneto1 = new Node();
+				bisneto1.setContent('bisneto1').setParent(neto1).setFillColor('gray');;
+				var bisneto2 = new Node();
+				bisneto2.setContent('bisneto2').setParent(neto1).setFillColor('gray');
+				drawTree(pai);
 			});
 	</script>
 </body>

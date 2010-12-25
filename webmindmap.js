@@ -95,7 +95,38 @@ function Node() {
 		}
 	};
  }
-  
+
+ function drawRect(node) {
+	var canvas=document.getElementById("myCanvas");
+	var ctx=canvas.getContext("2d");
+	var x = node.position.x;
+	var y = node.position.y;
+	var w = node.position.width;
+	var h = node.position.height;
+	ctx.beginPath();
+	ctx.moveTo(x+10, y);
+	ctx.lineTo(x+w-10, y);
+	ctx.quadraticCurveTo(x+w, y, x+w, y+10);
+	ctx.lineTo(x+w, y+h-10);
+	ctx.quadraticCurveTo(x+w, y+h, x+w-10, y+h);
+	ctx.lineTo(x+10, y+h);
+	ctx.quadraticCurveTo(x, y+h, x, y+h-10);
+	ctx.lineTo(x, y+10);
+	ctx.quadraticCurveTo(x, y, x+10, y);
+	ctx.fillStyle=node.fill_color;
+	ctx.fill();
+	ctx.lineWidth=1;
+	ctx.strokeStyle=node.border_color; 
+	ctx.stroke();	
+	ctx.closePath();
+	
+	ctx.fillStyle='black';
+	var str = node.content;
+	var tx = x + w/2 - (str.length * 5 / 2);
+	var ty = y + h/2;
+	ctx.fillText(str, tx, ty);
+
+ }
   
 function drawElement(node) {
 	var canvas=document.getElementById("myCanvas");
@@ -137,7 +168,8 @@ function drawElement(node) {
 }
 
 function drawTree(node) {
-	drawElement(node);
+	if(node.parent == null) drawElement(node);
+	else drawRect(node);
 	if(node.getChildLength() > 0)
 		for(i in node.child) {
 			drawEdge(node, node.child[i]);
