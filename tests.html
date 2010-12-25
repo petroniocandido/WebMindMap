@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
+	<script src="webmindmap.js"></script>
+  <script>
+
+  $(document).ready(function(){
+    	test("Teste da função getTotalHeight()", function() {
+			var pai = new Node();
+			pai.setX(250).setY(200).setContent('Pai');
+			equals(pai.position.height,pai.getTotalHeight(),"Um pai sem filhos retorna sua própria altura ");	
+			var filho1 = new Node();
+			filho1.setContent('filho1').setParent(pai);
+			equals(filho1.position.height,pai.getTotalHeight(),"Um pai com um filho retorna a altura do filho");				
+			var filho2 = new Node();
+			filho2.setContent('filho2').setParent(pai);
+			equals(filho1.position.height + filho2.position.height,pai.getTotalHeight(),"Um pai com dois filhos retorna a altura dos dois filhos somadas");	
+			var neto1 = new Node();
+			neto1.setContent('neto1').setParent(filho1);
+			equals(neto1.position.height + filho2.position.height,pai.getTotalHeight(),"Um pai com dois filhos e um neto retorna a altura de um dos filhos e do neto");	
+			var neto2 = new Node();
+			neto2.setContent('neto2').setParent(filho1);
+			equals(neto1.position.height + neto2.position.height + filho2.position.height,pai.getTotalHeight(),"Um pai com dois filhos e dois netos retorna a altura de um dos filhos e dos dois netos");	
+			
+		});
+		test("Teste da função RecalculateChild()", function() {
+			var pai = new Node();
+			pai.setX(250).setY(200).setContent('Pai');
+			var filho1 = new Node();
+			filho1.setContent('filho1').setParent(pai);
+			equals(pai.position.y,filho1.position.y,"Com um filho, A coord. y do primeiro filho deve ser 200");
+			var filho2 = new Node();
+			filho2.setContent('filho2').setParent(pai);
+			equals(pai.position.y-30,filho1.position.y,"Com dois filhos, a coord. y do primeiro filho deve ser 170");
+			equals(pai.position.y+30,filho2.position.y,"Com dois filhos, a coord. y do segundo filho deve ser 230");
+		});
+
+});
+
+  </script>
+  
+</head>
+<body>
+  <h1 id="qunit-header">QUnit example</h1>
+ <h2 id="qunit-banner"></h2>
+ <div id="qunit-testrunner-toolbar"></div>
+ <h2 id="qunit-userAgent"></h2>
+ <ol id="qunit-tests"></ol>
+ <div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>
