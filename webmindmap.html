@@ -19,7 +19,7 @@
 	 }
 	</style>
 	<div id="xy">MOUSE XY</div>
-	<canvas id="myCanvas" width="478" height="400"></canvas>
+	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
 	<div class="colorpicker">
   <div id="colorpicker"></div>
@@ -32,7 +32,8 @@
     <script type="text/javascript" >
 		var mm = new xMindMap();
 		mm.setOnChangeNode(function() { $('#content').val(mm.selected.content); });
-		function evtMouse(e) {
+		function evtMouseClick(e) {
+			mm.setEditMode(false);
 			var x = e.pageX - this.offsetLeft;
 			var y = e.pageY - this.offsetTop;
 			$('#xy').html("X: " + x + " Y: " + y); 
@@ -41,43 +42,75 @@
 				mm.setSelectedNode(n);
 			}
 		}
+		function evtMouseDblClick(e) {
+			mm.setEditMode(true);
+			var x = e.pageX - this.offsetLeft;
+			var y = e.pageY - this.offsetTop;
+			$('#xy').html("X: " + x + " Y: " + y); 
+			var n = mm.getNodeInXY(x,y);
+			if(n != null){
+				mm.setSelectedNode(n);
+			}
+		}
+		function evtMouseDown(e) {
+			var x = e.pageX - this.offsetLeft;
+			var y = e.pageY - this.offsetTop;
+			$('#xy').html("XX: " + e.clientX + " YY: " + y); 
+			
+		}
 		function evtKey(e) {
 			$('#xy').html("KEY: " + e.keyCode); 
-			// enter
-			if (e.keyCode == '13') {}
-			// space
-			else if (e.keyCode == '32') {
-				mm.selected.toggleChildVisible();
+			if(!mm.edit_mode){
+				// enter
+				if (e.keyCode == '13') {
+					if(mm.selected != null){
+						var n = new Node();
+						n.setParent(mm.selected.parent);
+						mm.setSelectedNode(n);
+					}
+				}
+				// backspace
+				else if (e.keyCode == '8') {
+					mm.selected.setContent(mm.selected.content.substring(0,mm.selected.content.length-1));
+				}
+				// space
+				else if (e.keyCode == '32') {
+					mm.selected.toggleChildVisible();
+				}
+				// insert
+				else if (e.keyCode == '45') {
+					var newNode = new Node();
+					mm.appendChild(newNode);
+				}
+				// delete
+				else if (e.keyCode == '46') {
+					mm.removeSelected();
+				}
+				// left arrow
+				else if (e.keyCode == '37') {
+					mm.changeSelectedToParent();
+				}
+				// up arrow
+				else if (e.keyCode == '38') {
+					mm.changeSelectedToPrevious();
+				}
+				// right arrow
+				else if (e.keyCode == '39') {
+					mm.changeSelectedToChild();
+				}
+				// down arrow
+				else if (e.keyCode == '40') {
+					mm.changeSelectedToNext();
+				}
+				/*
+				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
+					|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
+					|| parseInt(e.keyCode) >= 186 ) {
+					mm.selected.appendContent(String.fromCharCode(e.keyCode));
+				}
+				*/
 			}
-			// insert
-			else if (e.keyCode == '45') {
-				var newNode = new Node();
-				mm.appendChild(newNode);
-			}
-			// delete
-			else if (e.keyCode == '46') {
-				mm.removeSelected();
-			}
-			// left arrow
-			else if (e.keyCode == '37') {
-				mm.changeSelectedToParent();
-			}
-			// up arrow
-			else if (e.keyCode == '38') {
-				mm.changeSelectedToPrevious();
-			}
-			// right arrow
-			else if (e.keyCode == '39') {
-				mm.changeSelectedToChild();
-			}
-			// down arrow
-			else if (e.keyCode == '40') {
-				mm.changeSelectedToNext();
-			}
-			// left arrow
-			else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
-				|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
-				|| parseInt(e.keyCode) >= 186 ) {
+			else {
 				mm.selected.appendContent(String.fromCharCode(e.keyCode));
 			}
 			mm.Show();
@@ -90,10 +123,17 @@
 				mm.Show();
 				
 				//$('#myCanvas').mousemove(evt);
-				$('#myCanvas').click(evtMouse);
+				$('#myCanvas').click(evtMouseClick).dblclick(evtMouseDblClick).mousedown(evtMouseDown);
 				$(document).keydown(evtKey);
+				$('#content').change(function(){mm.selected.setContent($('#content').val()); mm.Show();});
+				//$('#color').change(function(){mm.selected.setFillColor($('#color').val()); mm.Show();});
 				
-				$('#colorpicker').farbtastic('#color');
+				$('#colorpicker').farbtastic(function(color){
+					if(mm.selected != null){
+						mm.selected.setFillColor(color); 
+						mm.Show();
+					}
+				});
   
 			});
 	</script>

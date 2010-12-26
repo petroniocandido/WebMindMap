@@ -12,12 +12,23 @@
 		root: null,
 		selected: null,
 		selected_lastcolor : 'white',
+		edit_mode : false,
 		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 },
 		OnChangeNodefn : null,
+		
+		setEditMode : function(t) {
+			this.edit_mode = t;
+		},
+		
+		toggleEditMode : function() {
+			this.edit_mode = !(this.edit_mode);
+		},
+		
 		OnChangeNode : function() {
 			if(this.OnChangeNodefn != null)
 				this.OnChangeNodefn();
 		},
+		
 		setOnChangeNode : function(fn) {
 			this.OnChangeNodefn = fn;
 		},
@@ -25,36 +36,43 @@
 		setRootNode : function(node) {
 			this.root = node;
 		},
+		
 		setSelectedNode : function(node) {
 			if(this.selected != null) {
-				this.selected.fill_color = this.selected_lastcolor;
+				this.selected.border_color = this.selected_lastcolor;
 			}
-			this.selected_lastcolor = node.fill_color;
+			this.selected_lastcolor = node.border_color;
 			this.selected = node;
-			this.selected.setFillColor('white');
+			this.selected.setBorderColor('red');
 			this.Show();
 			this.OnChangeNode();
 		},
+		
 		addNode : function(parent,child) {
 			child.setParent(parent);
 		},
+		
 		removeNode : function(node) {
 			node.parent.removeChild(node);
 		},
+		
 		removeSelected : function() {			
 			this.removeNode(this.selected);
 			this.setSelectedNode(this.selected.parent);
 			this.setSelectedNode(this.root);
 		},
+		
 		appendChild : function(node) {
 			if(this.selected != null) {
 				this.addNode(this.selected,node);
 				this.setSelectedNode(node);
 			}
 		},
+		
 		getNodeInXY : function(x,y) {
 			return this.checkNodeInBounds(this.root,x,y) ;
 		},		
+		
 		checkNodeInBounds : function(node, x,y) {
 			if(x >= node.getX() && x <= node.getXMax()
 				&& y >= node.getY() && y <= node.getYMax())
@@ -67,6 +85,7 @@
 			}
 			return null;
 		},
+		
 		changeSelectedToPrevious : function() {
 			if(this.selected != null){
 				if(this.selected.parent_index != 0)
@@ -74,6 +93,7 @@
 				this.selected.Show();
 			}
 		},
+		
 		changeSelectedToNext : function() {
 			if(this.selected != null){
 				if(this.selected.parent_index < this.selected.parent.getChildLength()-1)
@@ -81,12 +101,14 @@
 				this.selected.Show();
 			}
 		},
+		
 		changeSelectedToParent : function() {
 			if(this.selected != null){
 				this.setSelectedNode(this.selected.parent);
 				this.selected.Show();
 			}
 		},
+		
 		changeSelectedToChild : function() {
 			if(this.selected != null){
 				if(this.selected.getChildLength() > 0)
@@ -94,6 +116,7 @@
 				this.selected.Show();
 			}
 		},
+		
 		Show : function() {
 			clearCanvas();
 			drawTree(this.root);
