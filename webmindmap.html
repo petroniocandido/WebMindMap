@@ -2,12 +2,36 @@
 <head>
 </head>
 <body>
+	<style type="text/css" media="screen">
+	 .colorpicker {
+	   float: left;
+	   margin: 1em;
+	 }
+	 form {
+	   margin: 2em 1em 0 1;
+	   text-align: center;
+	 }
+	 body {
+	   font-family: "Lucida Grande", "Lucida Unicode", "Lucida Sans", sans-serif;
+	 }
+	 p {
+	   clear: both;
+	 }
+	</style>
 	<div id="xy">MOUSE XY</div>
-	<canvas id="myCanvas" width="878" height="800"></canvas>
+	<canvas id="myCanvas" width="478" height="400"></canvas>
+	<br />
+	<div class="colorpicker">
+  <div id="colorpicker"></div>
+  <form><input type="text" id="color" /></form>
+</div>
+	Conteúdo: <input id="content" type="textbox" />
 	<script src="jquery-1.4.3.js"></script>
+	<script type="text/javascript" charset="utf-8" src="farbtastic/src/farbtastic.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
 		var mm = new xMindMap();
+		mm.setOnChangeNode(function() { $('#content').val(mm.selected.content); });
 		function evtMouse(e) {
 			var x = e.pageX - this.offsetLeft;
 			var y = e.pageY - this.offsetTop;
@@ -18,52 +42,58 @@
 			}
 		}
 		function evtKey(e) {
+			$('#xy').html("KEY: " + e.keyCode); 
+			// enter
+			if (e.keyCode == '13') {}
 			// space
-			if (e.keyCode == '32') {
+			else if (e.keyCode == '32') {
 				mm.selected.toggleChildVisible();
-				mm.Show();
 			}
 			// insert
-			if (e.keyCode == '45') {}
+			else if (e.keyCode == '45') {
+				var newNode = new Node();
+				mm.appendChild(newNode);
+			}
 			// delete
-			if (e.keyCode == '46') {}
+			else if (e.keyCode == '46') {
+				mm.removeSelected();
+			}
+			// left arrow
+			else if (e.keyCode == '37') {
+				mm.changeSelectedToParent();
+			}
+			// up arrow
+			else if (e.keyCode == '38') {
+				mm.changeSelectedToPrevious();
+			}
+			// right arrow
+			else if (e.keyCode == '39') {
+				mm.changeSelectedToChild();
+			}
+			// down arrow
+			else if (e.keyCode == '40') {
+				mm.changeSelectedToNext();
+			}
+			// left arrow
+			else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
+				|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
+				|| parseInt(e.keyCode) >= 186 ) {
+				mm.selected.appendContent(String.fromCharCode(e.keyCode));
+			}
+			mm.Show();
 		}
+		
 		$(document).ready(function() {
-				
-				
 				var pai = new Node();
 				pai.setX(250).setY(200).setContent('Pai - Nó raiz').setFillColor('blue');
 				mm.setRootNode(pai);
-				var filho1 = new Node();
-				filho1.setContent('filho1').setFillColor('cyan');
-				mm.addNode(pai, filho1);
-				var filho2 = new Node();
-				filho2.setContent('filho2').setFillColor('cyan');
-				mm.addNode(pai, filho2);
-				var filho3 = new Node();
-				filho3.setContent('filho3').setFillColor('cyan');
-				mm.addNode(pai, filho3);
-				var neto1 = new Node();
-				neto1.setContent('neto1').setFillColor('darkgray');
-				mm.addNode(filho1,neto1);
-				var neto2 = new Node();
-				neto2.setContent('neto2').setFillColor('darkgray');;
-				mm.addNode(filho1,neto2);
-				var neto3 = new Node();
-				neto3.setContent('neto3').setFillColor('darkgray');;
-				mm.addNode(filho2,neto3);
-				var neto4 = new Node();
-				neto4.setContent('neto4').setFillColor('darkgray');;
-				mm.addNode(filho2,neto4);
-				var bisneto1 = new Node();
-				bisneto1.setContent('bisneto1').setParent(neto1).setFillColor('gray');;
-				var bisneto2 = new Node();
-				bisneto2.setContent('bisneto2').setParent(neto1).setFillColor('gray');
-				drawTree(mm.root);
+				mm.Show();
 				
 				//$('#myCanvas').mousemove(evt);
 				$('#myCanvas').click(evtMouse);
 				$(document).keydown(evtKey);
+				
+				$('#colorpicker').farbtastic('#color');
   
 			});
 	</script>

@@ -13,6 +13,15 @@
 		selected: null,
 		selected_lastcolor : 'white',
 		bounds : { x_min : 0, x_max : 0, y_min : 0, y_max : 0 },
+		OnChangeNodefn : null,
+		OnChangeNode : function() {
+			if(this.OnChangeNodefn != null)
+				this.OnChangeNodefn();
+		},
+		setOnChangeNode : function(fn) {
+			this.OnChangeNodefn = fn;
+		},
+		
 		setRootNode : function(node) {
 			this.root = node;
 		},
@@ -24,9 +33,24 @@
 			this.selected = node;
 			this.selected.setFillColor('white');
 			this.Show();
+			this.OnChangeNode();
 		},
 		addNode : function(parent,child) {
 			child.setParent(parent);
+		},
+		removeNode : function(node) {
+			node.parent.removeChild(node);
+		},
+		removeSelected : function() {			
+			this.removeNode(this.selected);
+			this.setSelectedNode(this.selected.parent);
+			this.setSelectedNode(this.root);
+		},
+		appendChild : function(node) {
+			if(this.selected != null) {
+				this.addNode(this.selected,node);
+				this.setSelectedNode(node);
+			}
 		},
 		getNodeInXY : function(x,y) {
 			return this.checkNodeInBounds(this.root,x,y) ;
@@ -42,7 +66,34 @@
 				}
 			}
 			return null;
-		},		
+		},
+		changeSelectedToPrevious : function() {
+			if(this.selected != null){
+				if(this.selected.parent_index != 0)
+					this.setSelectedNode(this.selected.parent.child[this.selected.parent_index -1]);
+				this.selected.Show();
+			}
+		},
+		changeSelectedToNext : function() {
+			if(this.selected != null){
+				if(this.selected.parent_index < this.selected.parent.getChildLength()-1)
+					this.setSelectedNode(this.selected.parent.child[this.selected.parent_index +1]);
+				this.selected.Show();
+			}
+		},
+		changeSelectedToParent : function() {
+			if(this.selected != null){
+				this.setSelectedNode(this.selected.parent);
+				this.selected.Show();
+			}
+		},
+		changeSelectedToChild : function() {
+			if(this.selected != null){
+				if(this.selected.getChildLength() > 0)
+					this.setSelectedNode(this.selected.child[0]);
+				this.selected.Show();
+			}
+		},
 		Show : function() {
 			clearCanvas();
 			drawTree(this.root);
@@ -59,11 +110,13 @@ function Node() {
 		visible: true,
 		content: '',
 		parent: null,
+		parent_index: 0,
 		child: [],
+		
 		
 		AdjustSize : function() { 
 			this.position.height = 30; 
-			this.position.width = this.content.length*5 + 10; 
+			this.position.width = this.content.length*10 + 10; 
 		},
 		
 		setVisible : function(t) { 
@@ -125,6 +178,12 @@ function Node() {
 			return this;
 		},
 		
+		appendContent : function(c) { 
+			this.content = this.content+c; 
+			this.AdjustSize();
+			return this;
+		},
+		
 		setParent : function(pparent) { 
 			if(pparent != null) {
 				this.parent = pparent; 
@@ -135,6 +194,15 @@ function Node() {
 		
 		addChild : function(pchild) { 
 			this.child.push(pchild); 
+			pchild.parent_index = this.child.length -1;
+			this.RecalculateChild();			
+			return this;
+		},
+		
+		removeChild : function(pchild) { 
+			this.child.splice(pchild.parent_index,1);
+			for(i in this.child)
+				this.child[i].parent_index = i;
 			this.RecalculateChild();			
 			return this;
 		},
@@ -181,6 +249,10 @@ function Node() {
 					this.child[i].setY(ypos + this.child[i].getTotalHeight() / 2);				
 					ypos += parseInt(this.child[i].getTotalHeight() + this.child[i].getChildLength()*10 + 10) ;
 				}
+		},
+		
+		Show : function() {
+			drawRect(this);
 		}
 	};
  }

@@ -1,3 +1,6 @@
 [submodule "qunit"]
 	path = qunit
 	url = git://github.com/jquery/qunit.git
+[submodule "farbtastic"]
+	path = farbtastic
+	url = git://github.com/mattfarina/farbtastic.git
