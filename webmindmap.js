@@ -18,6 +18,11 @@ function Node() {
 		parent_index: 0,
 		child: [],
 		
+		Translate : function(x,y) {
+			this.position.x += x;
+			this.position.y += y;
+			this.RecalculateChild();
+		},
 		
 		AdjustSize : function() { 
 			this.position.height = 30; 
@@ -163,6 +168,13 @@ function Node() {
  }
 
  CanvasRenderer = (function () {
+	 var translatex = 0;
+	 var translatey = 0;
+	 
+	 function setTranslate(x,y) {
+		translatex += x;
+		translatey += y;
+	 }
 	 
 	 function drawRect(node) {
 		var canvas=document.getElementById("myCanvas");
@@ -193,6 +205,8 @@ function Node() {
 		var tx = x + w/2 - (str.length * 5 / 2);
 		var ty = y + h/2;
 		ctx.fillText(str, tx, ty);
+		
+		ctx.translate(translatex,translatey);
 
 	 }
 	  
@@ -233,6 +247,8 @@ function Node() {
 		var str = node.content;
 		var tx = centerX - (str.length * 5 / 2);
 		c.fillText(str, tx, centerY);
+		
+		c.translate(translatex,translatey);
 	}
 
 	function drawTree(node) {
@@ -259,6 +275,7 @@ function Node() {
 		context.moveTo(ax,ay);
 		context.bezierCurveTo(ax-10,ay-10,bx-10,by-10,bx,by);
 		context.stroke();
+		context.translate(translatex,translatey);
 	}
 
 	function clearCanvas() {
@@ -274,7 +291,8 @@ function Node() {
 			drawEdge: drawEdge,
 			drawTree: drawTree,
 			drawElement:drawElement,
-			drawRect: drawRect
+			drawRect: drawRect,
+			setTranslate:setTranslate
 		};
  })();
  
@@ -355,7 +373,7 @@ function Node() {
 				return node;
 			else {
 				for(i in node.child){
-					var tmp = checkNodeInBounds(node.child[i],x,y);
+					var tmp = checkNodeInBounds(noe.child[i],x,y);
 					if(tmp != null) return tmp;
 				}
 			}
@@ -423,7 +441,7 @@ function Node() {
 		function OnMouseDown(e) {
 			var x = e.pageX - this.offsetLeft;
 			var y = e.pageY - this.offsetTop;
-			$('#xy').html("XX: " + e.clientX + " YY: " + y); 
+			$('#xy').html("XX: " + x + " YY: " + y); 
 			
 		}
 		
@@ -457,19 +475,31 @@ function Node() {
 				}
 				// left arrow
 				else if (e.keyCode == '37') {
-					changeSelectedToParent();
+					if(e.ctrlKey)
+						root.Translate(-5,0);
+					else	
+						changeSelectedToParent();
 				}
 				// up arrow
 				else if (e.keyCode == '38') {
-					changeSelectedToPrevious();
+					if(e.ctrlKey)
+						root.Translate(0,-5);
+					else 
+						changeSelectedToPrevious();
 				}
 				// right arrow
 				else if (e.keyCode == '39') {
-					changeSelectedToChild();
+					if(e.ctrlKey)
+						root.Translate(5,0);
+					else 
+						changeSelectedToChild();
 				}
 				// down arrow
 				else if (e.keyCode == '40') {
-					changeSelectedToNext();
+					if(e.ctrlKey)
+						root.Translate(0,5);
+					else 
+						changeSelectedToNext();
 				}
 				/*
 				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 

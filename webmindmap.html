@@ -40,7 +40,10 @@
 				xMindMap.Show();
 				
 				//$('#myCanvas').mousemove(evt);
-				$('#myCanvas').click(xMindMap.OnMouseClick).dblclick(xMindMap.OnMouseDblClick).mousedown(xMindMap.OnMouseDown);
+				$('#myCanvas').click(xMindMap.OnMouseClick)
+					.dblclick(xMindMap.OnMouseDblClick)
+					.mousedown(xMindMap.OnMouseDown);
+					//.mousemove(xMindMap.OnMouseDown);
 				$(document).keydown(xMindMap.OnKeyPressed);
 				$('#content').change(function(){xMindMap.getSelectedNode().setContent($('#content').val()); xMindMap.Show();});
 				//$('#color').change(function(){xMindMap.selected.setFillColor($('#color').val()); xMindMap.Show();});
