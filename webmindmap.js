@@ -25,7 +25,7 @@ function Node() {
 		},
 		
 		AdjustSize : function() { 
-			this.position.height = 30; 
+			this.position.height = this.content.split('\n').length*30; 
 			this.position.width = this.content.length*10 + 10; 
 		},
 		
@@ -204,7 +204,7 @@ function Node() {
 		var str = node.content;
 		var tx = x + w/2 - (str.length * 5 / 2);
 		var ty = y + h/2;
-		ctx.fillText(str, tx, ty);
+		printText(str, node.position.x + 10, node.position.y+5);
 		
 		ctx.translate(translatex,translatey);
 
@@ -246,7 +246,7 @@ function Node() {
 		c.fillStyle='black';
 		var str = node.content;
 		var tx = centerX - (str.length * 5 / 2);
-		c.fillText(str, tx, centerY);
+		printText(str, node.position.x + 10, centerY);
 		
 		c.translate(translatex,translatey);
 	}
@@ -277,6 +277,16 @@ function Node() {
 		context.stroke();
 		context.translate(translatex,translatey);
 	}
+	
+	function printText(content, x, y) {
+		var canvas=document.getElementById("myCanvas");
+		var c=canvas.getContext("2d");
+		var lineheight = 15;
+		var lines = content.split('\n');
+
+		for (var i = 0; i<lines.length; i++)
+			c.fillText(lines[i], x, y + (i*lineheight) );
+	}
 
 	function clearCanvas() {
 		var canvas=document.getElementById("myCanvas");
@@ -292,6 +302,7 @@ function Node() {
 			drawTree: drawTree,
 			drawElement:drawElement,
 			drawRect: drawRect,
+			printText:printText,
 			setTranslate:setTranslate
 		};
  })();
@@ -327,14 +338,16 @@ function Node() {
 		}
 		
 		function setSelectedNode(node) {
-			if(node_selected != null) {
-				node_selected.border_color = selected_lastcolor;
+			if(node != null) {
+				if(node_selected != null) {
+					node_selected.border_color = selected_lastcolor;
+				}
+				selected_lastcolor = node.border_color;
+				node_selected = node;
+				node_selected.setBorderColor('red');
+				Show();
+				OnChangeNode();
 			}
-			selected_lastcolor = node.border_color;
-			node_selected = node;
-			node_selected.setBorderColor('red');
-			Show();
-			OnChangeNode();
 		}
 		
 		function getSelectedNode() {
@@ -373,7 +386,7 @@ function Node() {
 				return node;
 			else {
 				for(i in node.child){
-					var tmp = checkNodeInBounds(noe.child[i],x,y);
+					var tmp = checkNodeInBounds(node.child[i],x,y);
 					if(tmp != null) return tmp;
 				}
 			}
@@ -389,7 +402,7 @@ function Node() {
 		}
 		
 		function changeSelectedToNext () {
-			if(node_selected != null){
+			if(node_selected != null && node_selected.parent != null){
 				if(node_selected.parent_index < node_selected.parent.getChildLength()-1)
 					setSelectedNode(node_selected.parent.child[node_selected.parent_index +1]);
 				node_selected.Show();
@@ -438,12 +451,28 @@ function Node() {
 			}
 		}
 		
-		function OnMouseDown(e) {
-			var x = e.pageX - this.offsetLeft;
-			var y = e.pageY - this.offsetTop;
-			$('#xy').html("XX: " + x + " YY: " + y); 
-			
+		var offsetX = 0;
+		var offsetY = 0;
+		
+		function OnMouseMove(e) {
+			var x = e.pageX; // - this.offsetLeft;
+			var y = e.pageY; //- this.offsetTop;
+			$('#xy').html("XX: " + x + " YY: " + y);
+			root.Translate(x - offsetX,y - offsetY);
+			Show();
+			offsetX = x;
+			offsetY = y;
 		}
+		
+		function OnMouseDown(e) {			
+			offsetX = e.pageX - this.offsetLeft;
+			offsetY = e.pageY - this.offsetTop;
+			$(document).mousemove(OnMouseMove);
+		}
+		
+		function OnMouseUp() {
+            $(document).unbind('mousemove');
+        }
 		
 		function OnKeyPressed(e) {
 			$('#xy').html("KEY: " + e.keyCode); 
@@ -537,6 +566,8 @@ function Node() {
 				OnMouseClick:OnMouseClick,
 				OnMouseDblClick:OnMouseDblClick,
 				OnMouseDown:OnMouseDown,
+				OnMouseUp:OnMouseUp,
+				OnMouseMove:OnMouseMove,
 				OnKeyPressed:OnKeyPressed
 			};
 	

@@ -21,33 +21,54 @@
 	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
-	<div class="colorpicker">
-  <div id="colorpicker"></div>
-  <form><input type="text" id="color" /></form>
-</div>
-	Conteúdo: <input id="content" type="textbox" />
+	<span id="edit_button">Editar</span>
+	<div id="details_panel">
+		<div class="colorpicker">
+			<div id="colorpicker"></div>
+		</div>
+		<form>
+			Cor: <input type="text" id="color" />
+			Conteúdo: <textarea id="content" cols="45" rows="5"></textarea>
+		</form>
+	</div>
 	<script src="jquery-1.4.3.js"></script>
 	<script type="text/javascript" charset="utf-8" src="farbtastic/src/farbtastic.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
-		//var xMindMap = new xMindMap();
-		
-		
 		$(document).ready(function() {
 				var pai = new Node();
-				pai.setX(250).setY(200).setContent('Pai - Nó raiz').setFillColor('blue');
+				pai
+					.setX(250)
+					.setY(200)
+					.setContent('Pai - Nó raiz')
+					.setFillColor('blue');
 				xMindMap.setRootNode(pai);
 				xMindMap.Show();
 				
-				//$('#myCanvas').mousemove(evt);
-				$('#myCanvas').click(xMindMap.OnMouseClick)
-					.dblclick(xMindMap.OnMouseDblClick)
-					.mousedown(xMindMap.OnMouseDown);
-					//.mousemove(xMindMap.OnMouseDown);
+				$('#myCanvas')
+					.click(xMindMap.OnMouseClick)
+					.click(function() {
+						$('#details_panel').hide();
+						$(document).keydown(xMindMap.OnKeyPressed);
+					})
+					.dblclick(function() {
+						$('#edit_button').click();
+						$('#content').focusin();
+					})
+					.mousedown(xMindMap.OnMouseDown)
+					.mouseup(xMindMap.OnMouseUp);
 				$(document).keydown(xMindMap.OnKeyPressed);
-				$('#content').change(function(){xMindMap.getSelectedNode().setContent($('#content').val()); xMindMap.Show();});
-				//$('#color').change(function(){xMindMap.selected.setFillColor($('#color').val()); xMindMap.Show();});
-				
+				$('#content')
+					.focusin(function(){
+						$(document).unbind('keydown');
+					}).focusout(function(){
+						$(document).keydown(xMindMap.OnKeyPressed);
+					}).change(function(){
+						xMindMap.getSelectedNode().setContent($('#content').val()); 
+						xMindMap.Show();
+					});
+				$('#details_panel').hide();
+				$('#edit_button').click(function(){ $('#details_panel').show('slow');  });
 				$('#colorpicker').farbtastic(function(color){
 					if(xMindMap.getSelectedNode() != null){
 						xMindMap.getSelectedNode().setFillColor(color); 
@@ -55,7 +76,10 @@
 					}
 				});
 				
-				xMindMap.setOnChangeNode(function() { $('#content').val(xMindMap.getSelectedNode().content); });
+				xMindMap.setOnChangeNode(function() { 
+					//$('#content').val(xMindMap.getSelectedNode().content); 
+					$('#details_panel').hide();
+				});
   
 			});
 	</script>
