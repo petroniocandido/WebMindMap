@@ -2,9 +2,9 @@
 		"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<script src="jquery-1.4.3.js"></script>
 	<link rel="stylesheet" href="http://github.com/jquery/qunit/raw/master/qunit/qunit.css" type="text/css" media="screen" />
 	<script type="text/javascript" src="http://github.com/jquery/qunit/raw/master/qunit/qunit.js"></script>
+	<script src="jquery-1.4.3.js"></script>
 	<script src="webmindmap.js"></script>
   <script>
 
@@ -38,7 +38,21 @@
 			equals(pai.position.y-30,filho1.position.y,"Com dois filhos, a coord. y do primeiro filho deve ser 170");
 			equals(pai.position.y+30,filho2.position.y,"Com dois filhos, a coord. y do segundo filho deve ser 230");
 		});
-
+		test("Teste da função Translate()", function() {
+			var pai = new Node();
+			pai.setX(250).setY(200).setContent('Pai');
+			var filho1 = new Node();
+			filho1.setContent('filho1').setParent(pai);
+			pai.Translate(5,0);
+			equals(255,pai.position.x,"Translada nó pai por (5,0), coord x do nó pai deve ser igual a 255 ");
+			equals(200,pai.position.y,"Translada nó pai por (5,0), coord y do nó pai deve ser igual a 200 ");
+			equals(305,filho1.position.x,"Translada nó pai por (5,0), coord x do nó filho1 deve ser igual a 255 ");
+			equals(200,filho1.position.y,"Translada nó pai por (5,0), coord y do nó filho1 deve ser igual a 200 ");
+			var filho2 = new Node();
+			filho2.setContent('filho2').setParent(pai);
+			equals(pai.position.y-30,filho1.position.y,"Com dois filhos, a coord. y do primeiro filho deve ser 170");
+			equals(pai.position.y+30,filho2.position.y,"Com dois filhos, a coord. y do segundo filho deve ser 230");
+		});
 });
 
   </script>

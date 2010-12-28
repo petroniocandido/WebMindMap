@@ -1,11 +1,3 @@
-/* 
- Display = ( function(pheigth, pwidth) {
-	screen_height : pheigth,
-	screen_width: pwidth,
-	middleX
- }
- );
- */
  
 function Node() {
 	return {
@@ -336,6 +328,9 @@ function Node() {
 			root = node;
 			setSelectedNode(root);
 		}
+		function getRootNode () {
+			return root;
+		}
 		
 		function setSelectedNode(node) {
 			if(node != null) {
@@ -359,7 +354,8 @@ function Node() {
 		}
 		
 		function removeNode(node) {
-			node.parent.removeChild(node);
+			if(node.parent != null)
+				node.parent.removeChild(node);
 		}
 		
 		function removeSelected () {			
@@ -429,120 +425,7 @@ function Node() {
 			CanvasRenderer.drawTree(root);
 		}
 		
-		function OnMouseClick(e) {
-			setEditMode(false);
-			var x = e.pageX - this.offsetLeft;
-			var y = e.pageY - this.offsetTop;
-			$('#xy').html("X: " + x + " Y: " + y); 
-			var n = getNodeInXY(x,y);
-			if(n != null){
-				setSelectedNode(n);
-			}
-		}
 		
-		function OnMouseDblClick(e) {
-			setEditMode(true);
-			var x = e.pageX - this.offsetLeft;
-			var y = e.pageY - this.offsetTop;
-			$('#xy').html("X: " + x + " Y: " + y); 
-			var n = getNodeInXY(x,y);
-			if(n != null){
-				setSelectedNode(n);
-			}
-		}
-		
-		var offsetX = 0;
-		var offsetY = 0;
-		
-		function OnMouseMove(e) {
-			var x = e.pageX; // - this.offsetLeft;
-			var y = e.pageY; //- this.offsetTop;
-			$('#xy').html("XX: " + x + " YY: " + y);
-			root.Translate(x - offsetX,y - offsetY);
-			Show();
-			offsetX = x;
-			offsetY = y;
-		}
-		
-		function OnMouseDown(e) {			
-			offsetX = e.pageX - this.offsetLeft;
-			offsetY = e.pageY - this.offsetTop;
-			$(document).mousemove(OnMouseMove);
-		}
-		
-		function OnMouseUp() {
-            $(document).unbind('mousemove');
-        }
-		
-		function OnKeyPressed(e) {
-			$('#xy').html("KEY: " + e.keyCode); 
-			if(!edit_mode){
-				// enter
-				if (e.keyCode == '13') {
-					if(node_selected != null){
-						var n = new Node();
-						n.setParent(node_selected.parent);
-						setSelectedNode(n);
-					}
-				}
-				// backspace
-				else if (e.keyCode == '8') {
-					node_selected.setContent(node_selected.content.substring(0,node_selected.content.length-1));
-				}
-				// space
-				else if (e.keyCode == '32') {
-					node_selected.toggleChildVisible();
-				}
-				// insert
-				else if (e.keyCode == '45') {
-					var newNode = new Node();
-					appendChild(newNode);
-				}
-				// delete
-				else if (e.keyCode == '46') {
-					removeSelected();
-				}
-				// left arrow
-				else if (e.keyCode == '37') {
-					if(e.ctrlKey)
-						root.Translate(-5,0);
-					else	
-						changeSelectedToParent();
-				}
-				// up arrow
-				else if (e.keyCode == '38') {
-					if(e.ctrlKey)
-						root.Translate(0,-5);
-					else 
-						changeSelectedToPrevious();
-				}
-				// right arrow
-				else if (e.keyCode == '39') {
-					if(e.ctrlKey)
-						root.Translate(5,0);
-					else 
-						changeSelectedToChild();
-				}
-				// down arrow
-				else if (e.keyCode == '40') {
-					if(e.ctrlKey)
-						root.Translate(0,5);
-					else 
-						changeSelectedToNext();
-				}
-				/*
-				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
-					|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
-					|| parseInt(e.keyCode) >= 186 ) {
-					xMindMap.selected.appendContent(String.fromCharCode(e.keyCode));
-				}
-				*/
-			}
-			else {
-				node_selected.appendContent(String.fromCharCode(e.keyCode));
-			}
-			Show();
-		}
 	return { 	root:root, 
 				node_selected: node_selected,
 				Show:Show, 
@@ -560,16 +443,136 @@ function Node() {
 				removeNode:removeNode,
 				addNode:addNode,
 				setRootNode: setRootNode,
+				getRootNode: getRootNode,
 				setSelectedNode: setSelectedNode,
 				getSelectedNode: getSelectedNode,
-				setOnChangeNode:setOnChangeNode,
+				setOnChangeNode:setOnChangeNode				
+			};
+	
+ })();
+ 
+ UIController = (function () {
+	function OnMouseClick(e) {
+			xMindMap.setEditMode(false);
+			var x = e.pageX - this.offsetLeft;
+			var y = e.pageY - this.offsetTop;
+			$('#xy').html("X: " + x + " Y: " + y); 
+			var n = xMindMap.getNodeInXY(x,y);
+			if(n != null){
+				xMindMap.setSelectedNode(n);
+			}
+		}
+		
+		function OnMouseDblClick(e) {
+			xMindMap.setEditMode(true);
+			var x = e.pageX - this.offsetLeft;
+			var y = e.pageY - this.offsetTop;
+			$('#xy').html("X: " + x + " Y: " + y); 
+			var n = xMindMap.getNodeInXY(x,y);
+			if(n != null){
+				xMindMap.setSelectedNode(n);
+			}
+		}
+		
+		var offsetX = 0;
+		var offsetY = 0;
+		
+		function OnMouseMove(e) {
+			var x = e.pageX; // - this.offsetLeft;
+			var y = e.pageY; //- this.offsetTop;
+			$('#xy').html("XX: " + x + " YY: " + y);
+			xMindMap.getRootNode().Translate(x - offsetX,y - offsetY);
+			xMindMap.Show();
+			offsetX = x;
+			offsetY = y;
+		}
+		
+		function OnMouseDown(e) {			
+			offsetX = e.pageX - this.offsetLeft;
+			offsetY = e.pageY - this.offsetTop;
+			$(document).mousemove(OnMouseMove);
+		}
+		
+		function OnMouseUp() {
+            $(document).unbind('mousemove');
+        }
+		
+		function OnKeyPressed(e) {
+			$('#xy').html("KEY: " + e.keyCode); 
+			if(!xMindMap.edit_mode){
+				// enter
+				if (e.keyCode == '13') {
+					if(xMindMap.getSelectedNode() != null){
+						var n = new Node();
+						n.setParent(xMindMap.getSelectedNode().parent);
+						xMindMap.setSelectedNode(n);
+					}
+				}
+				// backspace
+				else if (e.keyCode == '8') {
+					xMindMap.getSelectedNode().setContent(xMindMap.getSelectedNode().content.substring(0,xMindMap.getSelectedNode().content.length-1));
+				}
+				// space
+				else if (e.keyCode == '32') {
+					xMindMap.getSelectedNode().toggleChildVisible();
+				}
+				// insert
+				else if (e.keyCode == '45') {
+					var newNode = new Node();
+					xMindMap.appendChild(newNode);
+				}
+				// delete
+				else if (e.keyCode == '46') {
+					xMindMap.removeSelected();
+				}
+				// left arrow
+				else if (e.keyCode == '37') {
+					if(e.ctrlKey)
+						xMindMap.getRootNode().Translate(-5,0);
+					else	
+						xMindMap.changeSelectedToParent();
+				}
+				// up arrow
+				else if (e.keyCode == '38') {
+					if(e.ctrlKey)
+						xMindMap.getRootNode().Translate(0,-5);
+					else 
+						xMindMap.changeSelectedToPrevious();
+				}
+				// right arrow
+				else if (e.keyCode == '39') {
+					if(e.ctrlKey)
+						xMindMap.getRootNode().Translate(5,0);
+					else 
+						xMindMap.changeSelectedToChild();
+				}
+				// down arrow
+				else if (e.keyCode == '40') {
+					if(e.ctrlKey)
+						xMindMap.getRootNode().Translate(0,5);
+					else 
+						xMindMap.changeSelectedToNext();
+				}
+				/*
+				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
+					|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
+					|| parseInt(e.keyCode) >= 186 ) {
+					xMindMap.selected.appendContent(String.fromCharCode(e.keyCode));
+				}
+				*/
+			}
+			else {
+				xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
+			}
+			xMindMap.Show();
+		}
+		return {
 				OnMouseClick:OnMouseClick,
 				OnMouseDblClick:OnMouseDblClick,
 				OnMouseDown:OnMouseDown,
 				OnMouseUp:OnMouseUp,
 				OnMouseMove:OnMouseMove,
 				OnKeyPressed:OnKeyPressed
-			};
+		};
 	
  })();
- 

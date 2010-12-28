@@ -1,23 +1,8 @@
 <html>
 <head>
+		<link rel="stylesheet" href="webmindmap.css" type="text/css" media="screen" />
 </head>
 <body>
-	<style type="text/css" media="screen">
-	 .colorpicker {
-	   float: left;
-	   margin: 1em;
-	 }
-	 form {
-	   margin: 2em 1em 0 1;
-	   text-align: center;
-	 }
-	 body {
-	   font-family: "Lucida Grande", "Lucida Unicode", "Lucida Sans", sans-serif;
-	 }
-	 p {
-	   clear: both;
-	 }
-	</style>
 	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
@@ -27,8 +12,8 @@
 			<div id="colorpicker"></div>
 		</div>
 		<form>
-			Cor: <input type="text" id="color" />
-			Conteúdo: <textarea id="content" cols="45" rows="5"></textarea>
+			<p>Cor: <input type="text" id="color" /></p>
+			<p>Conteúdo: <textarea id="content" cols="45" rows="5"></textarea></p>
 		</form>
 	</div>
 	<script src="jquery-1.4.3.js"></script>
@@ -46,29 +31,29 @@
 				xMindMap.Show();
 				
 				$('#myCanvas')
-					.click(xMindMap.OnMouseClick)
+					.click(UIController.OnMouseClick)
 					.click(function() {
 						$('#details_panel').hide();
-						$(document).keydown(xMindMap.OnKeyPressed);
+						$(document).keydown(UIController.OnKeyPressed);
 					})
 					.dblclick(function() {
 						$('#edit_button').click();
 						$('#content').focusin();
 					})
-					.mousedown(xMindMap.OnMouseDown)
-					.mouseup(xMindMap.OnMouseUp);
-				$(document).keydown(xMindMap.OnKeyPressed);
+					.mousedown(UIController.OnMouseDown)
+					.mouseup(UIController.OnMouseUp);
+				$(document).keydown(UIController.OnKeyPressed);
 				$('#content')
 					.focusin(function(){
 						$(document).unbind('keydown');
 					}).focusout(function(){
-						$(document).keydown(xMindMap.OnKeyPressed);
+						$(document).keydown(UIController.OnKeyPressed);
 					}).change(function(){
 						xMindMap.getSelectedNode().setContent($('#content').val()); 
 						xMindMap.Show();
 					});
 				$('#details_panel').hide();
-				$('#edit_button').click(function(){ $('#details_panel').show('slow');  });
+				$('#edit_button').click(function(){ $('#details_panel').toggle();  });
 				$('#colorpicker').farbtastic(function(color){
 					if(xMindMap.getSelectedNode() != null){
 						xMindMap.getSelectedNode().setFillColor(color); 
