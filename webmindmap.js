@@ -13,12 +13,18 @@ function Node() {
 		Translate : function(x,y) {
 			this.position.x += x;
 			this.position.y += y;
-			this.RecalculateChild();
+			for(i in this.child)
+				this.child[i].Translate(x,y);
 		},
 		
 		AdjustSize : function() { 
-			this.position.height = this.content.split('\n').length*30; 
-			this.position.width = this.content.length*10 + 10; 
+			var lines = this.content.split('\n');
+			this.position.height = (lines.length > 0) ? (lines.length+1)*15 : 15;
+			var max = 0;
+			for(i in lines)
+				if(max < lines[i].length)
+					max = lines[i].length;
+			this.position.width = max*10 + 10; 
 		},
 		
 		setVisible : function(t) { 
@@ -34,6 +40,13 @@ function Node() {
 		toggleChildVisible : function() { 
 			for(i in this.child)
 				this.child[i].toggleVisible();
+				
+			return this;
+		},
+		
+		setChildVisible : function(t) { 
+			for(i in this.child)
+				this.child[i].setVisible(t);
 				
 			return this;
 		},
@@ -194,9 +207,9 @@ function Node() {
 		
 		ctx.fillStyle='black';
 		var str = node.content;
-		var tx = x + w/2 - (str.length * 5 / 2);
+		var tx = x + w/2; // - (str.length * 5 / 2);
 		var ty = y + h/2;
-		printText(str, node.position.x + 10, node.position.y+5);
+		printText(str, tx, ty);
 		
 		ctx.translate(translatex,translatey);
 
@@ -238,7 +251,7 @@ function Node() {
 		c.fillStyle='black';
 		var str = node.content;
 		var tx = centerX - (str.length * 5 / 2);
-		printText(str, node.position.x + 10, centerY);
+		printText(str, centerX, centerY);
 		
 		c.translate(translatex,translatey);
 	}
@@ -275,9 +288,9 @@ function Node() {
 		var c=canvas.getContext("2d");
 		var lineheight = 15;
 		var lines = content.split('\n');
-
+		var offset = (lines.length > 0)? lines.length*lineheight / 2 : 0;
 		for (var i = 0; i<lines.length; i++)
-			c.fillText(lines[i], x, y + (i*lineheight) );
+			c.fillText(lines[i], x-(lines[i].length*5)/2, y + (i*lineheight) - offset );
 	}
 
 	function clearCanvas() {
@@ -366,6 +379,7 @@ function Node() {
 		
 		function appendChild (node) {
 			if(node_selected != null) {
+				node_selected.setChildVisible(true);
 				addNode(node_selected,node);
 				setSelectedNode(node);
 				setEditMode(true);
@@ -553,13 +567,13 @@ function Node() {
 					else 
 						xMindMap.changeSelectedToNext();
 				}
-				/*
+				
 				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
 					|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
 					|| parseInt(e.keyCode) >= 186 ) {
-					xMindMap.selected.appendContent(String.fromCharCode(e.keyCode));
+					xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
 				}
-				*/
+				
 			}
 			else {
 				xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));

@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
 <head>
 		<link rel="stylesheet" href="webmindmap.css" type="text/css" media="screen" />
@@ -6,17 +7,28 @@
 	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
-	<span id="edit_button">Editar</span>
+	<span class="btn" id="btnEdit">Editar</span>
 	<div id="details_panel">
 		<div class="colorpicker">
 			<div id="colorpicker"></div>
 		</div>
 		<form>
-			<p>Cor: <input type="text" id="color" /></p>
-			<p>Conteúdo: <textarea id="content" cols="45" rows="5"></textarea></p>
+			<table>
+				<tr>
+					<td>Cor do Elemento</td> <td><input type="text" id="node_color" /></td>
+				</tr>
+				<tr>
+					<td>Conteúdo</td> <td><textarea id="content" cols="45" rows="5"></textarea></td>
+				</tr>
+			</table>
 		</form>
 	</div>
-	<script src="jquery-1.4.3.js"></script>
+	<div id="node_content">
+		<textarea id="txtContent" cols="30" rows="3"></textarea>
+		<span class="btn" id="btnOk">OK</span>
+	</div>
+	<div id="source" > </div>
+	<script src="jquery-1.4.3.js"></script>	
 	<script type="text/javascript" charset="utf-8" src="farbtastic/src/farbtastic.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
@@ -34,11 +46,13 @@
 					.click(UIController.OnMouseClick)
 					.click(function() {
 						$('#details_panel').hide();
-						$(document).keydown(UIController.OnKeyPressed);
+						//$(document).keydown(UIController.OnKeyPressed);
 					})
 					.dblclick(function() {
-						$('#edit_button').click();
-						$('#content').focusin();
+						var sel = xMindMap.getSelectedNode();
+						$('#node_content').css('top',sel.position.y).css('left',sel.position.x).show();
+						$(document).unbind('keydown');
+						$('#txtContent').val(sel.content).focusin();
 					})
 					.mousedown(UIController.OnMouseDown)
 					.mouseup(UIController.OnMouseUp);
@@ -48,22 +62,46 @@
 						$(document).unbind('keydown');
 					}).focusout(function(){
 						$(document).keydown(UIController.OnKeyPressed);
+						$('#content').unbind('keydown');
 					}).change(function(){
 						xMindMap.getSelectedNode().setContent($('#content').val()); 
 						xMindMap.Show();
+					}).keydown(function(){
+						xMindMap.Show();
 					});
 				$('#details_panel').hide();
-				$('#edit_button').click(function(){ $('#details_panel').toggle();  });
+				$('#node_content').hide();
+				$('#btnEdit').click(function(){ 
+					var sel = xMindMap.getSelectedNode();
+					if(sel == null) {
+						alert('Nenhum item selecionado!');
+						return false;
+					}
+					$('#colorpicker').hide();
+					$('#content').val(sel.content);
+					$('#details_panel').toggle();  
+				});
+				$('#btnOk').click(function(){
+					$(document).keydown(UIController.OnKeyPressed);
+					$('#node_content').hide();
+					xMindMap.getSelectedNode().setContent($('#txtContent').val());
+					xMindMap.Show();
+				});
 				$('#colorpicker').farbtastic(function(color){
 					if(xMindMap.getSelectedNode() != null){
 						xMindMap.getSelectedNode().setFillColor(color); 
 						xMindMap.Show();
 					}
+					$('#node_color').val(color);
 				});
-				
+				$('#colorpicker').dblclick(function() { $('#colorpicker').hide('slow'); });
+				$('#node_color').click(function() {
+					$('#colorpicker').css('top',$('#node_color').css('top')).css('left',$('#node_color').css('left')).show();
+				});
 				xMindMap.setOnChangeNode(function() { 
 					//$('#content').val(xMindMap.getSelectedNode().content); 
 					$('#details_panel').hide();
+					$('#source').val(JSON.stringify(pai));
 				});
   
 			});
