@@ -1,4 +1,4 @@
- 
+
 function Node() {
 	return {
 		position: { x: 0, y: 0, height: 0, width: 0 },
@@ -8,13 +8,13 @@ function Node() {
 		content: '',
 		parent: null,
 		parent_index: 0,
-		child: [],
+		childrem: [],
 		
 		Translate : function(x,y) {
 			this.position.x += x;
 			this.position.y += y;
-			for(i in this.child)
-				this.child[i].Translate(x,y);
+			for(i in this.childrem)
+				this.childrem[i].Translate(x,y);
 		},
 		
 		AdjustSize : function() { 
@@ -37,16 +37,16 @@ function Node() {
 			return this;
 		},
 		
-		toggleChildVisible : function() { 
-			for(i in this.child)
-				this.child[i].toggleVisible();
-				
+		toggleChildremVisible : function() { 
+			for(i in this.childrem)
+				this.childrem[i].toggleVisible();
+			this.RecalculateChildrem(true);	
 			return this;
 		},
 		
-		setChildVisible : function(t) { 
-			for(i in this.child)
-				this.child[i].setVisible(t);
+		setChildremVisible : function(t) { 
+			for(i in this.childrem)
+				this.childrem[i].setVisible(t);
 				
 			return this;
 		},
@@ -108,30 +108,41 @@ function Node() {
 		},
 		
 		addChild : function(pchild) { 
-			this.child.push(pchild); 
-			pchild.parent_index = this.child.length -1;
-			this.RecalculateChild();			
+			this.childrem.push(pchild); 
+			pchild.parent_index = this.childrem.length -1;
+			this.RecalculateChildrem(true);			
 			return this;
 		},
 		
 		removeChild : function(pchild) { 
-			this.child.splice(pchild.parent_index,1);
-			for(i in this.child)
-				this.child[i].parent_index = i;
-			this.RecalculateChild();			
+			this.childrem.splice(pchild.parent_index,1);
+			for(i in this.childrem)
+				this.childrem[i].parent_index = i;
+			this.RecalculateChildrem(true);			
 			return this;
 		},
 		
-		getChildLength : function() {
-			return this.child.length;
+		swapChildPosition : function(indexA,indexB) {
+			if(indexA >= 0 && indexA < this.getChildremLength() && indexB >= 0 && indexB < this.getChildremLength()){
+				var childA = this.childrem[indexA];
+				childA.parent_index = indexB;
+				var childB = this.childrem[indexB];
+				childB.parent_index = indexA;
+				this.childrem[indexA] = childB;
+				this.childrem[indexB] = childA;
+			}
+		},
+		
+		getChildremLength : function() {
+			return this.childrem.length;
 		},
 		
 		getTotalHeight : function() {
 			var tmp = 0;
-			if(this.child.length > 0) {
-				for(i in this.child)
-					if(this.child[i].visible)
-						tmp += parseInt(this.child[i].getTotalHeight());
+			if(this.childrem.length > 0) {
+				for(i in this.childrem)
+					if(this.childrem[i].visible)
+						tmp += parseInt(this.childrem[i].getTotalHeight());
 			}
 			else
 				tmp = this.position.height;
@@ -141,10 +152,10 @@ function Node() {
 		
 		getTotalWidth : function() {
 			var tmp = 0;
-			if(this.child.length > 0) {
-				for(i in this.child)
-					if(this.child[i].visible)
-						tmp += parseInt(this.child[i].getTotalWidth());
+			if(this.childrem.length > 0) {
+				for(i in this.childrem)
+					if(this.childrem[i].visible)
+						tmp += parseInt(this.childrem[i].getTotalWidth());
 			}
 			else
 				tmp = this.position.width;
@@ -152,18 +163,21 @@ function Node() {
 			return tmp;
 		},
 		
-		RecalculateChild : function() {
-			if(this.parent != null)
-				this.parent.RecalculateChild();
+		RecalculateChildrem : function(fromroot) {
+			if(this.parent != null && fromroot)
+				this.parent.RecalculateChildrem(true);
 				
 			var ypos = parseInt(this.position.y) - (this.getTotalHeight() / 2);
-			for(i in this.child)
-				if(this.child[i].visible)
+			for(i in this.childrem){
+				var childnode = this.childrem[i];
+				if(childnode.visible)
 				{
-					this.child[i].setX(this.getXMax() + 50);
-					this.child[i].setY(ypos + this.child[i].getTotalHeight() / 2);				
-					ypos += parseInt(this.child[i].getTotalHeight() + this.child[i].getChildLength()*10 + 10) ;
+					childnode.setX(this.getXMax() + 50);
+					childnode.setY(ypos + childnode.getTotalHeight() / 2);				
+					ypos += parseInt(childnode.getTotalHeight() + childnode.getChildremLength()*10 + 10);
+					childnode.RecalculateChildrem(false);
 				}
+			}
 		},
 		
 		Show : function() {
@@ -259,12 +273,12 @@ function Node() {
 	function drawTree(node) {
 		if(node.parent == null) drawElement(node);
 		else drawRect(node);
-		if(node.getChildLength() > 0)
-			for(i in node.child) 
-				if(node.child[i].visible)
+		if(node.getChildremLength() > 0)
+			for(i in node.childrem) 
+				if(node.childrem[i].visible)
 				{
-					drawEdge(node, node.child[i]);
-					drawTree(node.child[i]);			
+					drawEdge(node, node.childrem[i]);
+					drawTree(node.childrem[i]);			
 				}
 	}
 
@@ -379,11 +393,21 @@ function Node() {
 		
 		function appendChild (node) {
 			if(node_selected != null) {
-				node_selected.setChildVisible(true);
+				node_selected.setChildremVisible(true);
 				addNode(node_selected,node);
 				setSelectedNode(node);
 				setEditMode(true);
 			}
+		}
+		
+		function moveUp() {
+			if(node_selected.parent_index > 0)
+				node_selected.parent.swapChildPosition(node_selected.parent_index,node_selected.parent_index-1);
+		}
+		
+		function moveDown() {
+			if(node_selected.parent_index < node_selected.parent.getChildremLength())
+				node_selected.parent.swapChildPosition(node_selected.parent_index,node_selected.parent_index+1);
 		}
 		
 		function getNodeInXY (x,y) {
@@ -395,8 +419,8 @@ function Node() {
 				&& y >= node.getY() && y <= node.getYMax())
 				return node;
 			else {
-				for(i in node.child){
-					var tmp = checkNodeInBounds(node.child[i],x,y);
+				for(i in node.childrem){
+					var tmp = checkNodeInBounds(node.childrem[i],x,y);
 					if(tmp != null) return tmp;
 				}
 			}
@@ -406,15 +430,15 @@ function Node() {
 		function changeSelectedToPrevious () {
 			if(node_selected != null){
 				if(node_selected.parent_index != 0)
-					setSelectedNode(node_selected.parent.child[node_selected.parent_index -1]);
+					setSelectedNode(node_selected.parent.childrem[node_selected.parent_index -1]);
 				node_selected.Show();
 			}
 		}
 		
 		function changeSelectedToNext () {
 			if(node_selected != null && node_selected.parent != null){
-				if(node_selected.parent_index < node_selected.parent.getChildLength()-1)
-					setSelectedNode(node_selected.parent.child[node_selected.parent_index +1]);
+				if(node_selected.parent_index < node_selected.parent.getChildremLength()-1)
+					setSelectedNode(node_selected.parent.childrem[node_selected.parent_index +1]);
 				node_selected.Show();
 			}
 		}
@@ -428,8 +452,8 @@ function Node() {
 		
 		function changeSelectedToChild () {
 			if(node_selected != null){
-				if(node_selected.getChildLength() > 0)
-					setSelectedNode(node_selected.child[0]);
+				if(node_selected.getChildremLength() > 0)
+					setSelectedNode(node_selected.childrem[0]);
 				node_selected.Show();
 			}
 		}
@@ -443,6 +467,8 @@ function Node() {
 	return { 	root:root, 
 				node_selected: node_selected,
 				Show:Show, 
+				moveUp:moveUp,
+				moveDown:moveDown,
 				changeSelectedToChild:changeSelectedToChild,
 				changeSelectedToParent:changeSelectedToParent,
 				changeSelectedToNext:changeSelectedToNext,
@@ -514,66 +540,78 @@ function Node() {
 		function OnKeyPressed(e) {
 			$('#xy').html("KEY: " + e.keyCode); 
 			if(!xMindMap.edit_mode){
-				// enter
-				if (e.keyCode == '13') {
-					if(xMindMap.getSelectedNode() != null){
-						var n = new Node();
-						n.setParent(xMindMap.getSelectedNode().parent);
-						xMindMap.setSelectedNode(n);
-					}
+				switch(parseInt(e.keyCode)){
+					// enter
+					case 13:
+						if(xMindMap.getSelectedNode() != null){
+							var n = new Node();
+							//n.setParent(xMindMap.getSelectedNode().parent);
+							xMindMap.changeSelectedToParent()
+							xMindMap.appendChild(n);
+							xMindMap.setSelectedNode(n);
+						}
+						break;
+					// backspace
+					case 8:
+						xMindMap.getSelectedNode().setContent(xMindMap.getSelectedNode().content.substring(0,xMindMap.getSelectedNode().content.length-1));
+						break;
+					// space
+					case 32:
+						xMindMap.getSelectedNode().toggleChildremVisible();
+						break;
+					// insert
+					case 45:
+						var newNode = new Node();
+						xMindMap.appendChild(newNode);
+						break;
+					// delete
+					case 46:
+						xMindMap.removeSelected();
+						break;
+					// left arrow
+					case 37:
+						if(e.ctrlKey)
+							xMindMap.getRootNode().Translate(-5,0);
+						else	
+							xMindMap.changeSelectedToParent();
+						break;
+					// up arrow
+					case 38:
+						if(e.ctrlKey)
+							xMindMap.getRootNode().Translate(0,-5);
+						else if(e.altKey)
+							xMindMap.moveUp();
+						else 
+							xMindMap.changeSelectedToPrevious();
+						break;
+					// right arrow
+					case 39:
+						if(e.ctrlKey)
+							xMindMap.getRootNode().Translate(5,0);
+						else 
+							xMindMap.changeSelectedToChild();
+						break;
+					// down arrow
+					case 40:
+						if(e.ctrlKey)
+							xMindMap.getRootNode().Translate(0,5);
+						else if(e.altKey){
+							xMindMap.moveDown();
+							}
+						else {
+							xMindMap.changeSelectedToNext();
+							}
+						break;
+					
+					default:
+						break;
+					
 				}
-				// backspace
-				else if (e.keyCode == '8') {
-					xMindMap.getSelectedNode().setContent(xMindMap.getSelectedNode().content.substring(0,xMindMap.getSelectedNode().content.length-1));
-				}
-				// space
-				else if (e.keyCode == '32') {
-					xMindMap.getSelectedNode().toggleChildVisible();
-				}
-				// insert
-				else if (e.keyCode == '45') {
-					var newNode = new Node();
-					xMindMap.appendChild(newNode);
-				}
-				// delete
-				else if (e.keyCode == '46') {
-					xMindMap.removeSelected();
-				}
-				// left arrow
-				else if (e.keyCode == '37') {
-					if(e.ctrlKey)
-						xMindMap.getRootNode().Translate(-5,0);
-					else	
-						xMindMap.changeSelectedToParent();
-				}
-				// up arrow
-				else if (e.keyCode == '38') {
-					if(e.ctrlKey)
-						xMindMap.getRootNode().Translate(0,-5);
-					else 
-						xMindMap.changeSelectedToPrevious();
-				}
-				// right arrow
-				else if (e.keyCode == '39') {
-					if(e.ctrlKey)
-						xMindMap.getRootNode().Translate(5,0);
-					else 
-						xMindMap.changeSelectedToChild();
-				}
-				// down arrow
-				else if (e.keyCode == '40') {
-					if(e.ctrlKey)
-						xMindMap.getRootNode().Translate(0,5);
-					else 
-						xMindMap.changeSelectedToNext();
-				}
-				
-				else if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
-					|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
-					|| parseInt(e.keyCode) >= 186 ) {
-					xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
-				}
-				
+				if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
+						|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
+						|| parseInt(e.keyCode) >= 186 ) {
+						xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
+						}
 			}
 			else {
 				xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
