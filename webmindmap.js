@@ -1,6 +1,7 @@
 
 function Node() {
 	return {
+		//id : 0,
 		position: { x: 0, y: 0, height: 0, width: 0 },
 		fill_color: 'white',
 		border_color: 'black',
@@ -182,6 +183,38 @@ function Node() {
 		
 		Show : function() {
 			CanvasRenderer.drawRect(this);
+		},
+		
+		toJSON : function() {
+			var chldrm = '';
+			for(i in this.childrem)
+				chldrm += ((chldrm.length > 0)? ',' : '') + this.childrem[i].toJSON() ;
+			
+			var ret = "{" +
+				"position: { x:" + this.position.x +",y:" + this.position.y +",width:" + this.position.width +",height:" + this.position.height +" },"+
+				"fill_color: '" + this.fill_color+"',"+
+				"border_color: '" + this.border_color+"',"+
+				"visible:" + this.visible+","+
+				"content: '" + this.content+"',"+
+				"childrem: [" + chldrm +"]}";
+			
+			return ret;
+		},
+		
+		eval : function(str) {
+			this.childrem = [];
+			this.parent = null;
+			this.parent_index = 0;
+			this.position = str.position;
+			this.fill_color = str.fill_color;
+			this.border_color = str.border_color;
+			this.visible = str.visible;
+			this.content = str.content;
+			for(i = 0; i < str.childrem.length; i++){
+				var n = new Node();
+				n.eval(str.childrem[i]);
+				n.setParent(this);
+			}
 		}
 	};
  }
@@ -333,7 +366,7 @@ function Node() {
 		var edit_mode = false;
 		var bounds = { x_min : 0, x_max : 0, y_min : 0, y_max : 0 };
 		var OnChangeNodefn = null;
-		
+
 		function setEditMode(t) {
 			edit_mode = t;
 		}
@@ -527,10 +560,12 @@ function Node() {
 			offsetY = y;
 		}
 		
-		function OnMouseDown(e) {			
-			offsetX = e.pageX - this.offsetLeft;
-			offsetY = e.pageY - this.offsetTop;
-			$(document).mousemove(OnMouseMove);
+		function OnMouseDown(e) {						
+			if(e.which == 1){
+				offsetX = e.pageX - this.offsetLeft;
+				offsetY = e.pageY - this.offsetTop;
+				$(document).mousemove(OnMouseMove);			
+			}
 		}
 		
 		function OnMouseUp() {

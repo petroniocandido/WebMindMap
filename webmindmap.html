@@ -7,7 +7,7 @@
 	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
-	<span class="btn" id="btnEdit">Editar</span>
+	
 	<div id="details_panel">
 		<div class="colorpicker">
 			<div id="colorpicker"></div>
@@ -22,12 +22,17 @@
 				</tr>
 			</table>
 		</form>
+		<span class="btn" id="btnEdit">Ok</span>
 	</div>
 	<div id="node_content">
 		<textarea id="txtContent" cols="30" rows="3"></textarea>
 		<span class="btn" id="btnOk">OK</span>
 	</div>
-	<div id="source" > </div>
+	<div id="source" >
+		<textarea id="txtSource" cols="100" rows="30"></textarea> 
+		<span class="btn" id="btnExport">Exportar</span>
+		<span class="btn" id="btnLoad">Carregar</span>
+	</div>
 	<script src="jquery-1.4.3.js"></script>	
 	<script type="text/javascript" charset="utf-8" src="farbtastic/src/farbtastic.js"></script>
 	<script src="webmindmap.js"></script>
@@ -42,6 +47,7 @@
 				xMindMap.setRootNode(pai);
 				xMindMap.Show();
 				
+				$(document)[0].oncontextmenu = function() {return false;} 
 				$('#myCanvas')
 					.click(UIController.OnMouseClick)
 					.click(function() {
@@ -54,7 +60,22 @@
 						$(document).unbind('keydown');
 						$('#txtContent').val(sel.content).focusin();
 					})
+					.mousedown(function(e) { 
+						if(e.which == 3){  
+							var sel = xMindMap.getSelectedNode();
+							if(sel == null) {
+								alert('Nenhum item selecionado!');
+								return false;
+							}
+							$('#colorpicker').hide();
+							$('#content').val(sel.content);
+							$('#details_panel').css('top',sel.position.y).css('left',sel.position.x).show();  
+							return false;
+						}
+						return true;
+					})
 					.mousedown(UIController.OnMouseDown)
+					
 					.mouseup(UIController.OnMouseUp);
 				$(document).keydown(UIController.OnKeyPressed);
 				$('#content')
@@ -71,15 +92,8 @@
 					});
 				$('#details_panel').hide();
 				$('#node_content').hide();
-				$('#btnEdit').click(function(){ 
-					var sel = xMindMap.getSelectedNode();
-					if(sel == null) {
-						alert('Nenhum item selecionado!');
-						return false;
-					}
-					$('#colorpicker').hide();
-					$('#content').val(sel.content);
-					$('#details_panel').toggle();  
+				$('#btnEdit').click(function(){
+					$('#details_panel').hide();
 				});
 				$('#btnOk').click(function(){
 					$(document).keydown(UIController.OnKeyPressed);
@@ -101,9 +115,15 @@
 				xMindMap.setOnChangeNode(function() { 
 					//$('#content').val(xMindMap.getSelectedNode().content); 
 					$('#details_panel').hide();
-					//$('#source').val(JSON.stringify(pai));
 				});
-  
+				$('#btnExport').click(function() { 
+					$('#txtSource').val(pai.toJSON());
+				});
+				$('#btnLoad').click(function() { 
+					var obj = eval($('#txtSource').val());
+					pai.eval(obj[0]);
+					xMindMap.Show();
+				});
 			});
 	</script>
 </body>
