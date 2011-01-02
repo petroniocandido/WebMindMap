@@ -496,6 +496,16 @@ function Node() {
 			CanvasRenderer.drawTree(root);
 		}
 		
+		function toJSON() {
+			return "[" + root.toJSON() + "]";
+		}
+		
+		function load(str) {
+			var obj = eval(str);
+			root.eval(obj[0]);
+			Show();
+		}
+		
 		
 	return { 	root:root, 
 				node_selected: node_selected,
@@ -519,7 +529,9 @@ function Node() {
 				getRootNode: getRootNode,
 				setSelectedNode: setSelectedNode,
 				getSelectedNode: getSelectedNode,
-				setOnChangeNode:setOnChangeNode				
+				setOnChangeNode:setOnChangeNode,
+				toJSON:toJSON,
+				load:load
 			};
 	
  })();
@@ -560,17 +572,47 @@ function Node() {
 			offsetY = y;
 		}
 		
-		function OnMouseDown(e) {						
+		function OnMouseDown(e) {	
 			if(e.which == 1){
 				offsetX = e.pageX - this.offsetLeft;
 				offsetY = e.pageY - this.offsetTop;
-				$(document).mousemove(OnMouseMove);			
+				$('#myCanvas').mousemove(OnMouseMove);	
+				$('#myCanvas').mouseup(OnMouseUp);
+			}
+			else {
+				$('#myCanvas').unbind('mousemove',OnMouseMove);
 			}
 		}
 		
 		function OnMouseUp() {
-            $(document).unbind('mousemove');
+            $('#myCanvas').unbind('mousemove');
+			//return false;
         }
+		
+		function OnMouseRightButton(action,el,pos) { 
+				var sel = xMindMap.getSelectedNode();
+				if(sel == null) {
+					alert('Nenhum item selecionado!');
+					return false;
+				}
+				if(action == 'color'){  
+					$('#colorpicker').css('top',sel.position.y).css('left',sel.position.x).show();
+				}
+				if(action == 'content'){
+					$('#node_content').css('top',sel.position.y).css('left',sel.position.x).show();
+					$(document).unbind('keydown');
+					$('#txtContent').val(sel.content).focusin();
+				}
+				if(action == 'insert'){
+					var newNode = new Node();
+					xMindMap.appendChild(newNode);
+					xMindMap.Show();
+				}
+				if(action == 'delete'){
+					xMindMap.removeSelected();
+					xMindMap.Show();
+				}
+		}
 		
 		function OnKeyPressed(e) {
 			$('#xy').html("KEY: " + e.keyCode); 
@@ -659,7 +701,8 @@ function Node() {
 				OnMouseDown:OnMouseDown,
 				OnMouseUp:OnMouseUp,
 				OnMouseMove:OnMouseMove,
-				OnKeyPressed:OnKeyPressed
+				OnKeyPressed:OnKeyPressed,
+				OnMouseRightButton:OnMouseRightButton
 		};
 	
  })();

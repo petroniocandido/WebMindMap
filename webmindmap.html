@@ -2,28 +2,15 @@
 <html>
 <head>
 		<link rel="stylesheet" href="webmindmap.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="jquery.contextMenu.css" type="text/css" media="screen" />
 </head>
 <body>
 	<div id="xy">MOUSE XY</div>
 	<canvas id="myCanvas" width="878" height="300"></canvas>
 	<br />
-	
-	<div id="details_panel">
-		<div class="colorpicker">
+	<div class="colorpicker">
 			<div id="colorpicker"></div>
-		</div>
-		<form>
-			<table>
-				<tr>
-					<td>Cor do Elemento</td> <td><input type="text" id="node_color" /></td>
-				</tr>
-				<tr>
-					<td>Conteúdo</td> <td><textarea id="content" cols="45" rows="5"></textarea></td>
-				</tr>
-			</table>
-		</form>
-		<span class="btn" id="btnEdit">Ok</span>
-	</div>
+	</div>	
 	<div id="node_content">
 		<textarea id="txtContent" cols="30" rows="3"></textarea>
 		<span class="btn" id="btnOk">OK</span>
@@ -33,8 +20,23 @@
 		<span class="btn" id="btnExport">Exportar</span>
 		<span class="btn" id="btnLoad">Carregar</span>
 	</div>
+	<ul id="ContextMenu" class="contextMenu">
+		<li class="edit">
+			<a href="#color">Cor</a>
+		</li>
+		<li class="edit">
+			<a href="#content">Conteúdo</a>
+		</li>
+		<li class="edit">
+			<a href="#insert">Inserir</a>
+		</li>
+		<li class="delete">
+			<a href="#delete">Apagar</a>
+		</li>
+	</ul>
 	<script src="jquery-1.4.3.js"></script>	
 	<script type="text/javascript" charset="utf-8" src="farbtastic/src/farbtastic.js"></script>
+	<script type="text/javascript" charset="utf-8" src="jquery.contextMenu.js"></script>
 	<script src="webmindmap.js"></script>
     <script type="text/javascript" >
 		$(document).ready(function() {
@@ -47,37 +49,20 @@
 				xMindMap.setRootNode(pai);
 				xMindMap.Show();
 				
-				$(document)[0].oncontextmenu = function() {return false;} 
 				$('#myCanvas')
 					.click(UIController.OnMouseClick)
-					.click(function() {
-						$('#details_panel').hide();
-						//$(document).keydown(UIController.OnKeyPressed);
-					})
 					.dblclick(function() {
 						var sel = xMindMap.getSelectedNode();
 						$('#node_content').css('top',sel.position.y).css('left',sel.position.x).show();
 						$(document).unbind('keydown');
 						$('#txtContent').val(sel.content).focusin();
 					})
-					.mousedown(function(e) { 
-						if(e.which == 3){  
-							var sel = xMindMap.getSelectedNode();
-							if(sel == null) {
-								alert('Nenhum item selecionado!');
-								return false;
-							}
-							$('#colorpicker').hide();
-							$('#content').val(sel.content);
-							$('#details_panel').css('top',sel.position.y).css('left',sel.position.x).show();  
-							return false;
-						}
-						return true;
-					})
-					.mousedown(UIController.OnMouseDown)
-					
-					.mouseup(UIController.OnMouseUp);
+					.mousedown(UIController.OnMouseDown)					
+					.mouseup(UIController.OnMouseUp)
+					.contextMenu({menu:'ContextMenu'}, UIController.OnMouseRightButton);
+				
 				$(document).keydown(UIController.OnKeyPressed);
+				
 				$('#content')
 					.focusin(function(){
 						$(document).unbind('keydown');
@@ -90,39 +75,35 @@
 					}).keydown(function(){
 						xMindMap.Show();
 					});
-				$('#details_panel').hide();
+				
 				$('#node_content').hide();
-				$('#btnEdit').click(function(){
-					$('#details_panel').hide();
-				});
+				
 				$('#btnOk').click(function(){
 					$(document).keydown(UIController.OnKeyPressed);
 					$('#node_content').hide();
 					xMindMap.getSelectedNode().setContent($('#txtContent').val());
 					xMindMap.Show();
 				});
+				
 				$('#colorpicker').farbtastic(function(color){
 					if(xMindMap.getSelectedNode() != null){
 						xMindMap.getSelectedNode().setFillColor(color); 
 						xMindMap.Show();
 					}
-					$('#node_color').val(color);
 				});
+				
 				$('#colorpicker').dblclick(function() { $('#colorpicker').hide('slow'); });
-				$('#node_color').click(function() {
-					$('#colorpicker').css('top',$('#node_color').css('top')).css('left',$('#node_color').css('left')).show();
-				});
+				
 				xMindMap.setOnChangeNode(function() { 
-					//$('#content').val(xMindMap.getSelectedNode().content); 
 					$('#details_panel').hide();
 				});
+				
 				$('#btnExport').click(function() { 
-					$('#txtSource').val(pai.toJSON());
+					$('#txtSource').val(xMindMap.toJSON());
 				});
+				
 				$('#btnLoad').click(function() { 
-					var obj = eval($('#txtSource').val());
-					pai.eval(obj[0]);
-					xMindMap.Show();
+					xMindMap.load($('#txtSource').val());
 				});
 			});
 	</script>
