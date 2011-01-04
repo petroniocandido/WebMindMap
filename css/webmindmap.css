@@ -1,0 +1,29 @@
+.colorpicker {
+	   /*float: left;*/
+	   position: absolute;
+	   margin: 1em;
+	   border: 1px solid black;
+	   background-color: white;
+	   opacity: 1;
+	}
+body {
+	   font-family: "Lucida Grande", "Lucida Unicode", "Lucida Sans", sans-serif;
+	}
+p 	{
+	   clear: both;
+	}
+.btn {
+		border: 1px solid gray;
+		background-color: lightgray;
+		border-radius: 5;
+	}
+
+#myCanvas {
+		border: 5px solid gray;
+	}
+#node_content {
+		border: 1px solid gray;
+		position: absolute;
+		opacity: 1;
+		background-color: white;
+	} 
