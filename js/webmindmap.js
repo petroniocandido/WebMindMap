@@ -48,6 +48,7 @@ $(document).ready(function() {
 		});
 	
 	$('#node_content').hide();
+	$('#divColor').hide();
 	
 	$('#btnOk').click(function(){
 		$(document).keydown(UIController.OnKeyPressed);

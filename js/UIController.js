@@ -127,13 +127,20 @@ UIController = (function () {
 					case 37:
 						if(e.ctrlKey)
 							xMindMap.getRootNode().Translate(-5,0);
-						if(e.shiftKey) {
+						else if(e.shiftKey) {
 							if(xMindMap.getSelectedNode().parent == xMindMap.getRootNode()){
 								xMindMap.toggleDirection();
 							}
 						}
-						else	
-							xMindMap.changeSelectedToParent();
+						else {
+							if(xMindMap.getSelectedNode().parent == null && xMindMap.getRootNode().parent_direction == 'right')
+								xMindMap.getRootNode().toggleDirection();
+							
+							if(xMindMap.getRootNode().parent_direction == 'right')
+								xMindMap.changeSelectedToParent();
+							else
+								xMindMap.changeSelectedToChild();
+						}
 						break;
 					// up arrow
 					case 38:
@@ -148,8 +155,20 @@ UIController = (function () {
 					case 39:
 						if(e.ctrlKey)
 							xMindMap.getRootNode().Translate(5,0);
-						else 
-							xMindMap.changeSelectedToChild();
+						else if(e.shiftKey) {
+							if(xMindMap.getSelectedNode().parent == xMindMap.getRootNode()){
+								xMindMap.toggleDirection();
+							}
+						}
+						else {
+							if(xMindMap.getSelectedNode().parent == null && xMindMap.getRootNode().parent_direction == 'left')
+								xMindMap.getRootNode().toggleDirection();
+							
+							if(xMindMap.getRootNode().parent_direction == 'right')
+								xMindMap.changeSelectedToChild();
+							else
+								xMindMap.changeSelectedToParent();
+						}
 						break;
 					// down arrow
 					case 40:

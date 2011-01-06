@@ -123,16 +123,16 @@ xMindMap = (function () {
 		
 		function changeSelectedToPrevious () {
 			if(node_selected != null){
-				if(node_selected.parent_index != 0)
-					setSelectedNode(node_selected.parent.childrem[node_selected.parent_index -1]);
+				if(node_selected.prev_index != null)
+					setSelectedNode(node_selected.parent.childrem[node_selected.prev_index]);
 				node_selected.Show();
 			}
 		}
 		
 		function changeSelectedToNext () {
-			if(node_selected != null && node_selected.parent != null){
-				if(node_selected.parent_index < node_selected.parent.getChildremLength()-1)
-					setSelectedNode(node_selected.parent.childrem[node_selected.parent_index +1]);
+			if(node_selected != null){
+				if(node_selected.next_index != null)
+					setSelectedNode(node_selected.parent.childrem[node_selected.next_index]);
 				node_selected.Show();
 			}
 		}

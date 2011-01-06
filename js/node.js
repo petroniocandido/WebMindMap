@@ -8,6 +8,8 @@ function Node() {
 		content: '',
 		parent: null,
 		parent_index: 0,
+		next_index: null,
+		prev_index: null,
 		parent_direction: 'right',
 		childrem: [],
 		
@@ -127,7 +129,7 @@ function Node() {
 			this.childrem.push(pchild); 
 			pchild.parent_index = this.childrem.length -1;
 			pchild.parent_direction = this.parent_direction;
-			this.RecalculateChildrem(true);			
+			this.RecalculateChildrem(true);	
 			return this;
 		},
 		
@@ -187,16 +189,31 @@ function Node() {
 			var dirs = new Array('left', 'right');
 			for(d in dirs){
 				var direction = dirs[d];
+				var last = null;
+				var first = null;
 				var ypos = parseInt(this.position.y) - (this.getTotalHeight(direction) / 2);
 				for(i in this.childrem){
 					var childnode = this.childrem[i];
-					if(childnode.visible && childnode.parent_direction == direction)
-					{
-						childnode.setX((childnode.parent_direction == 'right') ? this.getXMax() + 50 : this.position.x-50 - this.position.width);
-						childnode.setY(ypos + childnode.getTotalHeight(direction) / 2);				
-						ypos += parseInt(childnode.getTotalHeight(direction) + childnode.getChildremLength()*10 + 10);
-						childnode.RecalculateChildrem(false);
+					if(childnode.parent_direction == direction){
+						if(first == null)
+							first = childnode;
+						if(childnode.visible)
+						{
+							childnode.setX((childnode.parent_direction == 'right') ? this.getXMax() + 50 : this.position.x-50 - this.position.width);
+							childnode.setY(ypos + childnode.getTotalHeight(direction) / 2);				
+							ypos += parseInt(childnode.getTotalHeight(direction) + childnode.getChildremLength()*10 + 10);
+							childnode.RecalculateChildrem(false);
+						}
+						if(last != null) {
+							childnode.prev_index = last.parent_index;
+							last.next_index = childnode.parent_index;
+						}
+						last = childnode;
 					}
+				}
+				if(first != null && last != null) {
+					first.prev_index = last.parent_index;
+					last.next_index = first.parent_index;
 				}
 			}
 		},
@@ -217,6 +234,8 @@ function Node() {
 				"visible:" + this.visible+","+
 				"content: '" + this.content+"',"+
 				"parent_direction: '" + this.parent_direction+"',"+
+				"prev_index: '" + this.prev_index+"',"+
+				"next_index: '" + this.next_index+"',"+
 				"childrem: [" + chldrm +"]}";
 			
 			return ret;
@@ -232,6 +251,8 @@ function Node() {
 			this.visible = str.visible;
 			this.content = str.content;
 			this.parent_direction = str.parent_direction;
+			this.prev_index = str.prev_index;
+			this.next_index = str.next_index;
 			for(i = 0; i < str.childrem.length; i++){
 				var n = new Node();
 				n.eval(str.childrem[i]);
