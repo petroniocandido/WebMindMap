@@ -5,6 +5,28 @@ xMindMap = (function () {
 		var edit_mode = false;
 		var bounds = { x_min : 0, x_max : 0, y_min : 0, y_max : 0 };
 		var OnChangeNodefn = null;
+	
+		function copy() {
+			return '[' +node_selected.toJSON()+']';
+		}
+		
+		function cut() {
+			var ret = copy();
+			removeSelected();
+			return ret;			
+		}
+		
+		function paste(src) {
+			var obj = eval(src);
+			var node = new Node();
+			node.eval(obj[0]);
+			appendChild(node);
+		}
+	
+		function toggleDirection() {
+			root.toggleDirection();
+			node_selected.toggleDirection();
+		}
 
 		function setEditMode(t) {
 			edit_mode = t;
@@ -60,7 +82,7 @@ xMindMap = (function () {
 		function removeSelected () {			
 			removeNode(node_selected);
 			setSelectedNode(node_selected.parent);
-			setSelectedNode(root);
+			//setSelectedNode(root);
 		}
 		
 		function appendChild (node) {
@@ -151,6 +173,10 @@ xMindMap = (function () {
 				Show:Show, 
 				moveUp:moveUp,
 				moveDown:moveDown,
+				copy: copy,
+				cut: cut,
+				paste: paste,
+				toggleDirection: toggleDirection,
 				changeSelectedToChild:changeSelectedToChild,
 				changeSelectedToParent:changeSelectedToParent,
 				changeSelectedToNext:changeSelectedToNext,

@@ -1,4 +1,7 @@
 UIController = (function () {
+
+	var clipboard = "";
+	
 	function OnMouseClick(e) {
 			xMindMap.setEditMode(false);
 			var x = e.pageX - this.offsetLeft;
@@ -77,6 +80,16 @@ UIController = (function () {
 					xMindMap.removeSelected();
 					xMindMap.Show();
 				}
+				if(action == 'copy'){
+					clipboard = xMindMap.copy();					
+				}
+				if(action == 'cut'){
+					clipboard = xMindMap.cut();					
+				}
+				if(action == 'paste'){
+					xMindMap.paste(clipboard);
+					xMindMap.Show();
+				}
 		}
 		
 		function OnKeyPressed(e) {
@@ -114,6 +127,11 @@ UIController = (function () {
 					case 37:
 						if(e.ctrlKey)
 							xMindMap.getRootNode().Translate(-5,0);
+						if(e.shiftKey) {
+							if(xMindMap.getSelectedNode().parent == xMindMap.getRootNode()){
+								xMindMap.toggleDirection();
+							}
+						}
 						else	
 							xMindMap.changeSelectedToParent();
 						break;

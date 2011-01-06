@@ -8,6 +8,7 @@ function Node() {
 		content: '',
 		parent: null,
 		parent_index: 0,
+		parent_direction: 'right',
 		childrem: [],
 		
 		Translate : function(x,y) {
@@ -48,6 +49,21 @@ function Node() {
 			for(i in this.childrem)
 				this.childrem[i].setVisible(t);
 				
+			return this;
+		},
+		
+		setDirection : function(t) { 
+			this.parent_direction = t; 
+			if(this.parent != null){
+				for(i in this.childrem)
+					this.childrem[i].setDirection(t);
+				this.RecalculateChildrem(true);	
+			}
+			return this;
+		},
+		
+		toggleDirection : function() { 
+			this.setDirection(this.parent_direction == 'right' ? 'left' : 'right');
 			return this;
 		},
 		
@@ -110,6 +126,7 @@ function Node() {
 		addChild : function(pchild) { 
 			this.childrem.push(pchild); 
 			pchild.parent_index = this.childrem.length -1;
+			pchild.parent_direction = this.parent_direction;
 			this.RecalculateChildrem(true);			
 			return this;
 		},
@@ -137,12 +154,12 @@ function Node() {
 			return this.childrem.length;
 		},
 		
-		getTotalHeight : function() {
+		getTotalHeight : function(direction) {
 			var tmp = 0;
 			if(this.childrem.length > 0) {
 				for(i in this.childrem)
-					if(this.childrem[i].visible)
-						tmp += parseInt(this.childrem[i].getTotalHeight());
+					if(this.childrem[i].visible && this.childrem[i].parent_direction == direction)
+						tmp += parseInt(this.childrem[i].getTotalHeight(direction));
 			}
 			else
 				tmp = this.position.height;
@@ -166,16 +183,20 @@ function Node() {
 		RecalculateChildrem : function(fromroot) {
 			if(this.parent != null && fromroot)
 				this.parent.RecalculateChildrem(true);
-				
-			var ypos = parseInt(this.position.y) - (this.getTotalHeight() / 2);
-			for(i in this.childrem){
-				var childnode = this.childrem[i];
-				if(childnode.visible)
-				{
-					childnode.setX(this.getXMax() + 50);
-					childnode.setY(ypos + childnode.getTotalHeight() / 2);				
-					ypos += parseInt(childnode.getTotalHeight() + childnode.getChildremLength()*10 + 10);
-					childnode.RecalculateChildrem(false);
+			
+			var dirs = new Array('left', 'right');
+			for(d in dirs){
+				var direction = dirs[d];
+				var ypos = parseInt(this.position.y) - (this.getTotalHeight(direction) / 2);
+				for(i in this.childrem){
+					var childnode = this.childrem[i];
+					if(childnode.visible && childnode.parent_direction == direction)
+					{
+						childnode.setX((childnode.parent_direction == 'right') ? this.getXMax() + 50 : this.position.x-50 - this.position.width);
+						childnode.setY(ypos + childnode.getTotalHeight(direction) / 2);				
+						ypos += parseInt(childnode.getTotalHeight(direction) + childnode.getChildremLength()*10 + 10);
+						childnode.RecalculateChildrem(false);
+					}
 				}
 			}
 		},
@@ -195,6 +216,7 @@ function Node() {
 				"border_color: '" + this.border_color+"',"+
 				"visible:" + this.visible+","+
 				"content: '" + this.content+"',"+
+				"parent_direction: '" + this.parent_direction+"',"+
 				"childrem: [" + chldrm +"]}";
 			
 			return ret;
@@ -209,6 +231,7 @@ function Node() {
 			this.border_color = str.border_color;
 			this.visible = str.visible;
 			this.content = str.content;
+			this.parent_direction = str.parent_direction;
 			for(i = 0; i < str.childrem.length; i++){
 				var n = new Node();
 				n.eval(str.childrem[i]);

@@ -15,7 +15,7 @@ $(document).ready(function() {
 	pai
 		.setX(250)
 		.setY(200)
-		.setContent('Pai - Nó raiz')
+		.setContent('Raiz')
 		.setFillColor('blue');
 	xMindMap.setRootNode(pai);
 	xMindMap.Show();

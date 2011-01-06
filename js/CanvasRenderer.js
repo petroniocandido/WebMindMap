@@ -97,9 +97,9 @@
 	function drawEdge(nodeA, nodeB) {
 		var canvas=document.getElementById("myCanvas");
 		var context=canvas.getContext("2d");
-		var ax = nodeA.getXMax();
+		var ax = (nodeB.parent_direction == 'right') ? nodeA.getXMax() : nodeA.position.x;
 		var ay = nodeA.position.y+nodeA.position.height/2;
-		var bx = nodeB.position.x;
+		var bx = (nodeB.parent_direction == 'right') ? nodeB.position.x : nodeB.getXMax();
 		var by = nodeB.position.y + nodeB.position.height/2;
 		context.beginPath();
 		context.strokeStyle='rgb(0,0,0)';
@@ -127,6 +127,7 @@
 	  canvas.width = 1;
 	  canvas.width = w;
 	}
+	
 	return {
 			clearCanvas:clearCanvas,
 			drawEdge: drawEdge,
