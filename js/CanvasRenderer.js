@@ -2,6 +2,9 @@
 	 var translatex = 0;
 	 var translatey = 0;
 	 
+	 var letterSize = 5;
+	 var lineheight = 15;
+	 
 	 function setTranslate(x,y) {
 		translatex += x;
 		translatey += y;
@@ -32,10 +35,7 @@
 		ctx.closePath();
 		
 		ctx.fillStyle='black';
-		var str = node.content;
-		var tx = x + w/2; // - (str.length * 5 / 2);
-		var ty = y + h/2;
-		printText(str, tx, ty);
+		printText(node);
 		
 		ctx.translate(translatex,translatey);
 
@@ -75,9 +75,7 @@
 		c.closePath();
 		
 		c.fillStyle='black';
-		var str = node.content;
-		var tx = centerX - (str.length * 5 / 2);
-		printText(str, centerX, centerY);
+		printText(node);
 		
 		c.translate(translatex,translatey);
 	}
@@ -109,14 +107,23 @@
 		context.translate(translatex,translatey);
 	}
 	
-	function printText(content, x, y) {
+	function printText(node) {
+		var x = node.position.x + node.position.width/2;
+		var y = node.position.y + node.position.height/2;
 		var canvas=document.getElementById("myCanvas");
-		var c=canvas.getContext("2d");
-		var lineheight = 15;
-		var lines = content.split('\n');
-		var offset = (lines.length > 0)? lines.length*lineheight / 2 : 0;
-		for (var i = 0; i<lines.length; i++)
-			c.fillText(lines[i], x-(lines[i].length*5)/2, y + (i*lineheight) - offset );
+		var c=canvas.getContext("2d");	
+		c.font = node.font_size + 'px ' + node.font_name;
+		c.textAlign = 'center';
+		//
+		var lines = node.content.split('\n');
+		if(lines.length > 0){
+			var offset = (lines.length*node.font_size)/2;
+			for (var i = 0; i<lines.length; i++)
+				c.fillText(lines[i], x, y + (i*node.font_size) - offset );
+		}
+		else
+			c.fillText(node.content, x, y);		
+			
 	}
 
 	function clearCanvas() {

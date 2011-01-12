@@ -11,6 +11,8 @@ function Node() {
 		next_index: null,
 		prev_index: null,
 		parent_direction: 'right',
+		font_name: 'Arial',
+		font_size: 15,
 		childrem: [],
 		
 		Translate : function(x,y) {
@@ -22,12 +24,12 @@ function Node() {
 		
 		AdjustSize : function() { 
 			var lines = this.content.split('\n');
-			this.position.height = (lines.length > 0) ? (lines.length+1)*15 : 15;
+			this.position.height = this.font_size*((lines.length > 0) ? (lines.length+1) : 1);
 			var max = 0;
 			for(i in lines)
 				if(max < lines[i].length)
 					max = lines[i].length;
-			this.position.width = max*10 + 10; 
+			this.position.width = max*this.font_size/2 + 10; 
 		},
 		
 		setVisible : function(t) { 

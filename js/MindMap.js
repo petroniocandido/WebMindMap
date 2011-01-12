@@ -89,6 +89,7 @@ xMindMap = (function () {
 			if(node_selected != null) {
 				node_selected.setChildremVisible(true);
 				addNode(node_selected,node);
+				node.setDirection(node_selected.parent_direction);
 				setSelectedNode(node);
 				setEditMode(true);
 			}
