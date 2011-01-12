@@ -71,6 +71,15 @@ function Node() {
 			return this;
 		},
 		
+		setFontSize : function(n) {
+			this.font_size = n;
+			this.AdjustSize();
+		},
+		
+		addFontSize : function(n) {
+			this.setFontSize(this.font_size + n);
+		},
+		
 		setX : function(px) { 
 			this.position.x = px; 
 			return this;
@@ -238,6 +247,8 @@ function Node() {
 				"parent_direction: '" + this.parent_direction+"',"+
 				"prev_index: '" + this.prev_index+"',"+
 				"next_index: '" + this.next_index+"',"+
+				"font_name: '" + this.font_name +"'," +
+				"font_size: '" + this.font_size +"'," +
 				"childrem: [" + chldrm +"]}";
 			
 			return ret;
@@ -255,6 +266,8 @@ function Node() {
 			this.parent_direction = str.parent_direction;
 			this.prev_index = str.prev_index;
 			this.next_index = str.next_index;
+			this.font_name = str.font_name;
+			this.font_size = str.font_size;
 			for(i = 0; i < str.childrem.length; i++){
 				var n = new Node();
 				n.eval(str.childrem[i]);

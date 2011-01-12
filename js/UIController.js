@@ -181,13 +181,20 @@ UIController = (function () {
 							xMindMap.changeSelectedToNext();
 							}
 						break;
-					
+					// plus
+					case 107:
+						xMindMap.zoomIn();
+						break;
+					// minus
+					case 109:
+						xMindMap.zoomOut();
+						break;
 					default:
 						break;
 					
 				}
 				if ((parseInt(e.keyCode) >= 48 && parseInt(e.keyCode) <= 90) 
-						|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
+						//|| (parseInt(e.keyCode) >= 107 && parseInt(e.keyCode) <= 111) 
 						|| parseInt(e.keyCode) >= 186 ) {
 						xMindMap.getSelectedNode().appendContent(String.fromCharCode(e.keyCode));
 						}

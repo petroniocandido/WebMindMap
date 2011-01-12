@@ -168,6 +168,22 @@ xMindMap = (function () {
 			Show();
 		}
 		
+		function zoom (node, inc) {
+			node.addFontSize(inc);
+			for(i in node.childrem){
+				zoom(node.childrem[i], inc);
+			}
+			root.RecalculateChildrem(false);
+		}
+		
+		function zoomIn () {
+			zoom(root,5);
+		}
+		
+		function zoomOut () {
+			zoom(root,-5);
+		}
+		
 		
 	return { 	root:root, 
 				node_selected: node_selected,
@@ -197,7 +213,9 @@ xMindMap = (function () {
 				getSelectedNode: getSelectedNode,
 				setOnChangeNode:setOnChangeNode,
 				toJSON:toJSON,
-				load:load
+				load:load,
+				zoomIn: zoomIn,
+				zoomOut: zoomOut
 			};
 	
  })();
